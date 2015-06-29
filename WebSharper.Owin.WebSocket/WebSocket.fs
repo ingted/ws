@@ -207,10 +207,12 @@ type private ProcessWebSocketonnection<'T>
         proc x <| InternalMessage.Open x
 
     override x.OnMessageReceived(message, typ) =
-        new System.Threading.Tasks.Task(fun () ->
+        async {
             let json = System.Text.Encoding.UTF8.GetString(message.Array)
             let m = MessageCoder.FromJString processor.JsonProvider json
-            proc x <| InternalMessage.Message (x, m))
+            proc x <| InternalMessage.Message (x, m)
+        }
+        |> Async.StartAsTask :> _
 
     override x.OnReceiveError(ex) = 
         proc x <| InternalMessage.Error (x, ex)
