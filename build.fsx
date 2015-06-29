@@ -7,6 +7,15 @@ let bt =
 
 open System.IO
 
+let owinws =   
+    bt.MSBuild(@"Owin.WebSocket\Owin.WebSocket.csproj")
+        .Configuration("Release")
+            .GeneratedAssemblyFiles(
+                [
+                    "build/net45/Owin.WebSocket.dll"
+                ]
+            )
+
 let main =
     bt.WebSharper.Library("WebSharper.Owin.WebSocket")
         .SourcesFromProject()
@@ -14,9 +23,9 @@ let main =
             [
                 r.NuGet("Owin").Reference()
                 r.NuGet("Microsoft.Owin").Reference()
-                r.NuGet("Owin.WebSocket").Reference()
                 r.NuGet("CommonServiceLocator").Reference()
                 r.NuGet("WebSharper.Owin").Reference()
+                r.Project owinws
                 r.File(Path.Combine(__SOURCE_DIRECTORY__, @"packages\CommonServiceLocator.1.3\lib\portable-net4+sl5+netcore45+wpa81+wp8\Microsoft.Practices.ServiceLocation.dll"))
                 r.Assembly("System.Configuration")
                 r.Assembly "System.Web"
@@ -43,6 +52,7 @@ let test =
             ])
         
 bt.Solution [
+    owinws
     main
     test
 
@@ -54,6 +64,7 @@ bt.Solution [
                 ProjectUrl = Some "https://github.com/intellifactory/websharper.owin.websocket"
                 Description = "WebSocket support for WebSharper with Owin 1.0"
                 RequiresLicenseAcceptance = true })
+        .AddFile("build/net45/Owin.WebSocket.dll","lib/net45/Owin.WebSocket.dll")
         .Add(main)
 ]
 |> bt.Dispatch

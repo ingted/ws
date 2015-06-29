@@ -16,6 +16,7 @@ module private Async =
 type Endpoint<'T> =
     private {
         URI : string
+        Route : string
     }
 
 module MessageCoder =
@@ -64,9 +65,6 @@ module Client =
 
     let private processResponse (sock : WebSocket) msg =
         async {
-            // TODO: can this be done in a nicer way?
-            while sock.ReadyState <> WebSocketReadyState.Open do
-                do! Async.Sleep 10
             let! msg = msg
             match msg with
             | Action.Message value ->
@@ -189,7 +187,7 @@ type private WebSocketProcessor<'T>
     member this.ProcessResponse socket msg = processResponse socket msg
     member this.JsonProvider = jP
 
-type private ProcessWebSocketonnection<'T>
+type private ProcessWebSocketConnection<'T>
     (processor : WebSocketProcessor<'T>) =
 
     inherit WebSocketConnection()
@@ -246,12 +244,12 @@ type private WebSocketServiceLocator<'T>(processor : WebSocketProcessor<'T>) =
 let GetWebSocketEndPoint (url : string) (route : string) =
     let uri = System.Uri(System.Uri(url), route)
     let wsuri = sprintf "ws://%s%s" uri.Authority uri.AbsolutePath
-    { URI = wsuri } : Endpoint<'T>
+    { URI = wsuri; Route = route } : Endpoint<'T>
     
-let StartWebSocketServer (route : string) (builder : IAppBuilder) (json: Core.Json.Provider)
+let StartWebSocketServer (endpoint: Endpoint<'T>) (builder : IAppBuilder) (json: Core.Json.Provider)
     (agent : MailboxProcessor<WebSocketClient<'T> option * Message<'T>>) =
 
     let processor = WebSocketProcessor(agent, json)
 
-    builder.MapWebSocketRoute<ProcessWebSocketonnection<'T>>(route, WebSocketServiceLocator<'T>(processor))
+    builder.MapWebSocketRoute<ProcessWebSocketConnection<'T>>(endpoint.Route, WebSocketServiceLocator<'T>(processor))
 

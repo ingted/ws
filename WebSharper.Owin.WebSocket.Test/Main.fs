@@ -60,8 +60,8 @@ module SelfHostedServer =
                 appB.UseStaticFiles(
                         StaticFileOptions(
                             FileSystem = PhysicalFileSystem(rootDirectory)))
-                    .UseSitelet(rootDirectory, Site.MainSitelet ep)
-                |> Server.Server "/ws" options.Json)
+                    .UseCustomSitelet(options, Site.MainSitelet ep)          
+                |> Server.Server ep options.Json)
             stdout.WriteLine("Serving {0}", url)
             stdin.ReadLine() |> ignore
             0
