@@ -45,7 +45,7 @@
   </Choose>
   <Import Project="$(FSharpTargetsPath)" />
   <ItemGroup>
-    <Compile Include="Main.fs" />
+    <Compile Include="WebSocket.fs" />
   </ItemGroup>
   <Import Project="../build/net45/$(Name).proj" />
 </Project>
