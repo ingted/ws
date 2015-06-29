@@ -18,9 +18,6 @@ type Endpoint<'T> =
         URI : string
     }
 
-    static member FromUri (uri : string) =
-        { URI = uri }
-
 module MessageCoder =
     module J = WebSharper.Core.Json
 
@@ -86,7 +83,7 @@ module Client =
     type private ServerStatus<'T> =
         {
             State : State
-            Queue : Action<'T> list
+            Queue : ResizeArray<Action<'T>>
         }
 
     type private ServerMessage<'T> =
@@ -113,7 +110,8 @@ module Client =
                         | Open ->
                             for a in st.Queue do
                                 do! processResponse socket <| async.Return a
-                            return! loop { State = State.Open; Queue = [] }
+                            st.Queue.Clear()
+                            return! loop { st with State = State.Open }
                         | Close ->
                             return! loop { st with State = State.Closed }
                         | Message msg ->
@@ -122,9 +120,10 @@ module Client =
                                 do! processResponse socket (async.Return msg)
                                 return! loop st
                             | State.Closed ->
-                                return! loop { st with Queue = msg :: st.Queue }
+                                st.Queue.Add msg
+                                return! loop st
                     }
-                loop { State = State.Closed; Queue = [] }
+                loop { State = State.Closed; Queue = ResizeArray() }
 
         let server = MailboxProcessor.Start <| fun inbox ->
             let rec loop () : Async<unit> =

@@ -1,6 +1,6 @@
 (function()
 {
- var Global=this,Runtime=this.IntelliFactory.Runtime,WebSocket,Concurrency,Owin,WebSocket1,Client,Control,MailboxProcessor,List,T,Json,JSON,Exception,Unchecked,Endpoint;
+ var Global=this,Runtime=this.IntelliFactory.Runtime,WebSocket,Concurrency,Owin,WebSocket1,Client,Control,MailboxProcessor,Collections,ResizeArray,ResizeArrayProxy,Json,JSON,Exception,Unchecked;
  Runtime.Define(Global,{
   WebSharper:{
    Owin:{
@@ -49,17 +49,18 @@
              if(_arg1.$==2)
               {
                msg=_arg1.$0;
-               return st.State.$==1?loop({
-                State:st.State,
-                Queue:Runtime.New(T,{
-                 $:1,
-                 $0:msg,
-                 $1:st.Queue
-                })
-               }):Concurrency.Bind(Client.processResponse(socket,Concurrency.Return(msg)),function()
-               {
-                return loop(st);
-               });
+               if(st.State.$==1)
+                {
+                 st.Queue.Add(msg);
+                 return loop(st);
+                }
+               else
+                {
+                 return Concurrency.Bind(Client.processResponse(socket,Concurrency.Return(msg)),function()
+                 {
+                  return loop(st);
+                 });
+                }
               }
              else
               {
@@ -71,13 +72,12 @@
                 });
                }),Concurrency.Delay(function()
                {
+                st.Queue.Clear();
                 return loop({
                  State:{
                   $:0
                  },
-                 Queue:Runtime.New(T,{
-                  $:0
-                 })
+                 Queue:st.Queue
                 });
                }));
               }
@@ -89,9 +89,7 @@
          State:{
           $:1
          },
-         Queue:Runtime.New(T,{
-          $:0
-         })
+         Queue:ResizeArrayProxy.New2()
         });
        },{
         $:0
@@ -188,15 +186,7 @@
         }));
        });
       }
-     },
-     Endpoint:Runtime.Class({},{
-      FromUri:function(uri)
-      {
-       return Runtime.New(Endpoint,{
-        URI:uri
-       });
-      }
-     })
+     }
     }
    }
   }
@@ -210,13 +200,13 @@
   Client=Runtime.Safe(WebSocket1.Client);
   Control=Runtime.Safe(Global.WebSharper.Control);
   MailboxProcessor=Runtime.Safe(Control.MailboxProcessor);
-  List=Runtime.Safe(Global.WebSharper.List);
-  T=Runtime.Safe(List.T);
+  Collections=Runtime.Safe(Global.WebSharper.Collections);
+  ResizeArray=Runtime.Safe(Collections.ResizeArray);
+  ResizeArrayProxy=Runtime.Safe(ResizeArray.ResizeArrayProxy);
   Json=Runtime.Safe(Global.WebSharper.Json);
   JSON=Runtime.Safe(Global.JSON);
   Exception=Runtime.Safe(Global.WebSharper.Exception);
-  Unchecked=Runtime.Safe(Global.WebSharper.Unchecked);
-  return Endpoint=Runtime.Safe(WebSocket1.Endpoint);
+  return Unchecked=Runtime.Safe(Global.WebSharper.Unchecked);
  });
  Runtime.OnLoad(function()
  {
