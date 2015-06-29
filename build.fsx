@@ -22,8 +22,29 @@ let main =
                 r.Assembly "System.Web"
             ])
 
+let test =
+    bt.WebSharper.Executable("WebSharper.Owin.WebSocket.Test")
+        .SourcesFromProject()
+        .References(fun r ->
+            [
+                r.NuGet("Owin").Reference()
+                r.NuGet("Microsoft.Owin").Reference()
+                r.NuGet("Owin.WebSocket").Reference()
+                r.NuGet("WebSharper.Owin").Reference()
+                r.NuGet("Microsoft.Owin.Hosting").Reference()
+                r.NuGet("Microsoft.Owin.StaticFiles").Reference()
+                r.NuGet("Microsoft.Owin.FileSystems").Reference()          
+                r.NuGet("Microsoft.Owin.Host.HttpListener").Reference()          
+                r.NuGet("Microsoft.Owin.Diagnostics").Reference()          
+                r.NuGet("Mono.Cecil").Reference()          
+                r.Project main
+                r.Assembly("System.Configuration")
+                r.Assembly "System.Web"
+            ])
+        
 bt.Solution [
     main
+    test
 
     bt.NuGet.CreatePackage()
         .Configure(fun c ->
