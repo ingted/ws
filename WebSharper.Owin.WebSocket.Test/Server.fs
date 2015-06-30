@@ -7,7 +7,7 @@ module Server =
         | Request of string
         | Response of string
 
-    let Server route json builder =
+    let Server route =
         let wrtln (x : string) = System.Diagnostics.Debug.WriteLine x
 
         let proc = MailboxProcessor.Start(fun inbox ->
@@ -29,4 +29,4 @@ module Server =
             }
         )
 
-        StartWebSocketServer route builder json proc
+        proc

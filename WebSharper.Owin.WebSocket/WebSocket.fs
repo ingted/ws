@@ -246,10 +246,15 @@ let GetWebSocketEndPoint (url : string) (route : string) =
     let wsuri = sprintf "ws://%s%s" uri.Authority uri.AbsolutePath
     { URI = wsuri; Route = route } : Endpoint<'T>
     
-let StartWebSocketServer (endpoint: Endpoint<'T>) (builder : IAppBuilder) (json: Core.Json.Provider)
+let internal StartWebSocketServer (endpoint: Endpoint<'T>) (builder : IAppBuilder) (json: Core.Json.Provider)
     (agent : MailboxProcessor<WebSocketClient<'T> option * Message<'T>>) =
 
     let processor = WebSocketProcessor(agent, json)
 
     builder.MapWebSocketRoute<ProcessWebSocketConnection<'T>>(endpoint.Route, WebSocketServiceLocator<'T>(processor))
 
+[<AutoOpen>]
+module Extensions =
+    type WebSharperOptions<'T when 'T: equality> with
+        member this.WithWebSocketServer (endPoint: Endpoint<'U>, agent : MailboxProcessor<WebSocketClient<'U> option * Message<'U>>) =
+            this.WithInitAction(fun (builder, json) -> StartWebSocketServer endPoint builder json agent)

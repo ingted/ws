@@ -56,12 +56,14 @@ module SelfHostedServer =
         | [| rootDirectory; url |] ->
             use server = WebApp.Start(url, fun appB ->
                 let ep = GetWebSocketEndPoint url "/ws"
-                let options = Options.Create(rootDirectory)
                 appB.UseStaticFiles(
-                        StaticFileOptions(
-                            FileSystem = PhysicalFileSystem(rootDirectory)))
-                    .UseCustomSitelet(options, Site.MainSitelet ep)          
-                |> Server.Server ep options.Json)
+                        StaticFileOptions(FileSystem = PhysicalFileSystem(rootDirectory))
+                )
+                    .UseWebSharper(
+                        WebSharperOptions(ServerRootDirectory = rootDirectory, Sitelet = Some (Site.MainSitelet ep))
+                            .WithWebSocketServer(ep, Server.Server ep)                        
+                ) |> ignore     
+            )    
             stdout.WriteLine("Serving {0}", url)
             stdin.ReadLine() |> ignore
             0
