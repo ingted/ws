@@ -1,4 +1,4 @@
-module WebSharper.Owin.WebSocket
+namespace WebSharper.Owin.WebSocket
 
 open Owin
 open Owin.WebSocket
@@ -43,176 +43,96 @@ type Action<'T> =
     | Message of 'T
     | Close
     
-[<ReferenceEquality>]
-type WebSocketClient<'T> =
-    {
-        Conn           : WebSocketConnection
-        ReplyChan      : AsyncReplyChannel<Action<'T>>
-    }
-
-let private mkWSClient conn rc = { Conn = conn; ReplyChan = rc }
-
-[<JavaScript>]
-type Message<'T> =
-    | Message of 'T
-    | Error of exn
-    | Open of MailboxProcessor<Action<'T>>
-    | Close
-
 [<JavaScript>]
 module Client =
     open WebSharper.JavaScript
 
-    let private processResponse (sock : WebSocket) msg =
-        async {
-            let! msg = msg
-            match msg with
-            | Action.Message value ->
-                value 
-                |> Json.Stringify
-                |> sock.Send
-            | Action.Close -> sock.Close ()
-        }
-
-    type private State =
-        | Open
-        | Closed
-
-    type private ServerStatus<'T> =
-        {
-            State : State
-            Queue : ResizeArray<Action<'T>>
-        }
-
-    type private ServerMessage<'T> =
+    type Message<'T> =
+        | Message of 'T
+        | Error 
         | Open
         | Close
-        | Message of Action<'T>
 
-    let ConnectTo (endpoint : Endpoint<'T>) 
-        (agent : MailboxProcessor<Message<'T> * AsyncReplyChannel<Action<'T>>>) =
+    type WebSocketServer<'T>(conn: WebSocket) =
+        member this.Connection = conn
+        member this.Post (msg: 'T) = msg |> Json.Stringify |> conn.Send
 
+    type Agent<'T> = WebSocketServer<'T> -> Message<'T> -> unit
+
+    let Connect (endpoint : Endpoint<'T>) (agent : Agent<'T>) =
         let socket = new WebSocket(endpoint.URI)
+        let server = WebSocketServer(socket)
+        let proc = agent server
 
-        let proc (msg : Message<'T>) =
-            agent.PostAndAsyncReply (fun chan -> msg, chan)
-            |> processResponse socket
-            |> Async.Start
-
-        let internalServer =
-            MailboxProcessor.Start <| fun inbox ->
-                let rec loop (st : ServerStatus<'T>) : Async<unit> =
-                    async {
-                        let! msg = inbox.Receive ()
-                        match msg with
-                        | Open ->
-                            for a in st.Queue do
-                                do! processResponse socket <| async.Return a
-                            st.Queue.Clear()
-                            return! loop { st with State = State.Open }
-                        | Close ->
-                            return! loop { st with State = State.Closed }
-                        | Message msg ->
-                            match st.State with
-                            | State.Open -> 
-                                do! processResponse socket (async.Return msg)
-                                return! loop st
-                            | State.Closed ->
-                                st.Queue.Add msg
-                                return! loop st
-                    }
-                loop { State = State.Closed; Queue = ResizeArray() }
-
-        let server = MailboxProcessor.Start <| fun inbox ->
-            let rec loop () : Async<unit> =
-                async {
-                    let! msg = inbox.Receive ()
-                    internalServer.Post <| ServerMessage.Message msg
-                    return! loop ()
-                }
-            loop ()
-
-        socket.Onopen <- fun () -> 
-            internalServer.Post Open
-            proc <| Message.Open server
-        socket.Onclose <- fun () -> 
-            internalServer.Post Close
-            proc <| Message.Close
+        socket.Onopen <- fun () -> proc Message.Open
+        socket.Onclose <- fun () -> proc Message.Close
         socket.Onmessage <- fun msg -> 
             As<string> msg.Data |> Json.Parse |> Json.Activate |> Message.Message |> proc
-        socket.Onerror <- fun () -> System.Exception "error" |> Message.Error |> proc
+        socket.Onerror <- fun () -> Message.Error |> proc
 
         server
 
-type private WebSocketProcessor<'T>
-    (agent : MailboxProcessor<WebSocketClient<'T> option * Message<'T>>,
-        jP: Core.Json.Provider) =
+module Server = 
+    type Message<'T> =
+        | Message of 'T
+        | Error of exn
+        | Close
 
-    let processResponse (sock : WebSocketConnection) msg =
-        async {
-            let! msg = msg
-            match msg with
-            | Action.Message value ->
-                let msg = MessageCoder.ToJString jP value
-                let bytes = System.Text.Encoding.UTF8.GetBytes(msg)
-                do! sock.SendText(bytes, true) |> Async.AwaitUnitTask
-            | Action.Close -> 
-                do! sock.Close (System.Net.WebSockets.WebSocketCloseStatus.NormalClosure,
-                                    "Client requested.") |> Async.AwaitUnitTask
-        }
+    type WebSocketClient<'T>(conn: WebSocketConnection, jP) =
+        let onMessage = Event<'T>()
+        let onClose = Event<unit>()
+        let onError = Event<exn>()
 
-    let newClientProcessor (sock : WebSocketConnection) = 
-        MailboxProcessor.Start <| fun inbox ->
-            let rec loop () = async {
-                do! processResponse sock <| inbox.Receive()
-                return! loop ()
-            }
-            loop ()
-        
-    let mailbox = 
-        MailboxProcessor.Start <| fun inbox ->
-            async {
-                while true do
-                    let! (msg, replyChan) = inbox.Receive()
-                    let conn, imsg =
-                        match msg with
-                        | InternalMessage.Open socket -> socket, Message.Open <| newClientProcessor socket
-                        | InternalMessage.Close soscket -> soscket, Message.Close
-                        | InternalMessage.Message (socket, msg) -> socket, Message.Message msg
-                        | InternalMessage.Error (socket, ex) -> socket, Message.Error ex
-                    agent.Post <| (Some <| mkWSClient conn replyChan, imsg) 
-            }   
-                
-    member this.Mailbox = mailbox
-    member this.ProcessResponse socket msg = processResponse socket msg
-    member this.JsonProvider = jP
+        member this.Connection = conn
+        member this.PostAsync (value: 'T) =
+            let msg = MessageCoder.ToJString jP value
+            let bytes = System.Text.Encoding.UTF8.GetBytes(msg)
+            conn.SendText(bytes, true) |> Async.AwaitUnitTask
+        member this.Post (value: 'T) = this.PostAsync value |> Async.Start
+        member this.OnMessage = onMessage.Publish
+        member this.OnClose = onClose.Publish
+        member this.OnError = onError.Publish
+
+        member internal this.Close() = onClose.Trigger()
+        member internal this.Message msg = onMessage.Trigger(msg)
+        member internal this.Error e = onError.Trigger(e)
+
+    let GetEndpoint (url : string) (route : string) =
+        let uri = System.Uri(System.Uri(url), route)
+        let wsuri = sprintf "ws://%s%s" uri.Authority uri.AbsolutePath
+        { URI = wsuri; Route = route } : Endpoint<'T>
+
+    type Agent<'T> = WebSocketClient<'T> -> Message<'T> -> unit
+
+type private WebSocketProcessor<'T> =
+    {
+        Agent : Server.Agent<'T>
+        JsonProvider : Core.Json.Provider    
+    }
 
 type private ProcessWebSocketConnection<'T>
     (processor : WebSocketProcessor<'T>) =
 
     inherit WebSocketConnection()
-
-    let proc socket msg =
-        processor.Mailbox.PostAndAsyncReply (fun chan -> msg, chan)
-        |> processor.ProcessResponse socket
-        |> Async.Start
+    let mutable post = None : Option<Server.Message<'T> -> unit>
 
     override x.OnClose(status, desc) =
-        proc x <| InternalMessage.Close x
+        post |> Option.iter (fun p -> p Server.Close)
 
     override x.OnOpen() =
-        proc x <| InternalMessage.Open x
+        let cl = Server.WebSocketClient(x, processor.JsonProvider)
+        post <- Some (processor.Agent cl)
 
     override x.OnMessageReceived(message, typ) =
         async {
             let json = System.Text.Encoding.UTF8.GetString(message.Array)
             let m = MessageCoder.FromJString processor.JsonProvider json
-            proc x <| InternalMessage.Message (x, m)
+            post.Value(Server.Message m)
         }
         |> Async.StartAsTask :> _
 
     override x.OnReceiveError(ex) = 
-        proc x <| InternalMessage.Error (x, ex)
+        post.Value(Server.Error ex)
 
 type private WebSocketServiceLocator<'T>(processor : WebSocketProcessor<'T>) =
     interface IServiceLocator with
@@ -241,20 +161,15 @@ type private WebSocketServiceLocator<'T>(processor : WebSocketProcessor<'T>) =
         member x.GetAllInstances<'TService>() : System.Collections.Generic.IEnumerable<'TService> =
             raise <| System.NotImplementedException()
 
-let GetWebSocketEndPoint (url : string) (route : string) =
-    let uri = System.Uri(System.Uri(url), route)
-    let wsuri = sprintf "ws://%s%s" uri.Authority uri.AbsolutePath
-    { URI = wsuri; Route = route } : Endpoint<'T>
-    
-let internal StartWebSocketServer (endpoint: Endpoint<'T>) (builder : IAppBuilder) (json: Core.Json.Provider)
-    (agent : MailboxProcessor<WebSocketClient<'T> option * Message<'T>>) =
-
-    let processor = WebSocketProcessor(agent, json)
-
-    builder.MapWebSocketRoute<ProcessWebSocketConnection<'T>>(endpoint.Route, WebSocketServiceLocator<'T>(processor))
-
 [<AutoOpen>]
 module Extensions =
     type WebSharperOptions<'T when 'T: equality> with
-        member this.WithWebSocketServer (endPoint: Endpoint<'U>, agent : MailboxProcessor<WebSocketClient<'U> option * Message<'U>>) =
-            this.WithInitAction(fun (builder, json) -> StartWebSocketServer endPoint builder json agent)
+        member this.WithWebSocketServer (endpoint: Endpoint<'U>, agent : Server.Agent<'U>) =
+            this.WithInitAction(fun (builder, json) -> 
+                let processor =
+                    {
+                        Agent = agent
+                        JsonProvider = json
+                    }
+                builder.MapWebSocketRoute<ProcessWebSocketConnection<'U>>(endpoint.Route, WebSocketServiceLocator<'U>(processor))
+            )

@@ -1,32 +1,23 @@
 ﻿namespace WebSharper.Owin.WebSocket.Test
 
 module Server =
-    open WebSharper.Owin.WebSocket
+    open WebSharper.Owin.WebSocket.Server
 
     type Message =
         | Request of string
         | Response of string
 
-    let Server route =
-        let wrtln (x : string) = System.Diagnostics.Debug.WriteLine x
+    let Start route : Agent<Message> =
+        /// print to debug output
+        let dprintfn x = Printf.ksprintf System.Diagnostics.Debug.WriteLine x
 
-        let proc = MailboxProcessor.Start(fun inbox ->
-            async {
-                while true do
-                    let! (cl, msg) = inbox.Receive ()
-                    let a = msg.ToString ()
-                    match (msg, cl) with
-                    | Message data, Some cl -> 
-                        match data with
-                        | Request x ->
-                            cl.ReplyChan.Reply <| Action.Message (Response x)
-                        | _ -> ()
-                    | Error exn, _ -> 
-                        wrtln <| sprintf "Panic! %s" exn.Message
-                    | Open a, _ -> ()
-                    | Close, _ -> ()
+        fun client ->
+            fun msg -> 
+                match msg with
+                | Message data -> 
+                    match data with
+                    | Request x -> client.PostAsync (Response x) |> Async.Start
                     | _ -> ()
-            }
-        )
-
-        proc
+                | Error exn -> 
+                    dprintfn "Error in WebSocket server: %s" exn.Message
+                | Close -> ()

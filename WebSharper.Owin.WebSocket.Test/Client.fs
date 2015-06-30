@@ -7,34 +7,28 @@ open WebSharper.Owin.WebSocket
 
 [<JavaScript>]
 module Client =
+    open WebSharper.Owin.WebSocket.Client
 
-    let WS (endpoint : Endpoint<Server.Message>) =
+    let WS (endpoint : Endpoint<Server.Message>)  =
 
         let server =
-            Client.ConnectTo endpoint <| MailboxProcessor.Start(fun inbox ->
-                let rec loop () : Async<unit> =
-                    async {
-                        let! (msg, rc) = inbox.Receive ()
-                        match msg with
-                        | Message data ->
-                            match data with
-                            | Server.Response x -> Console.Log x
-                            | _ -> ()
-                        | Close -> 
-                            Console.Log "Connection closed."
-                        | Open server ->
-                            Console.Log "WebSocket conenction open."
-                        | Error ex ->
-                            Console.Log ex.Message
-                        return! loop ()
-                    }
-                loop ()
-            )
-
+            Connect endpoint <| fun server msg ->
+                match msg with
+                | Message data ->
+                    match data with
+                    | Server.Response x -> Console.Log x
+                    | _ -> ()
+                | Close -> 
+                    Console.Log "Connection closed."
+                | Open ->
+                    Console.Log "WebSocket connection open."
+                | Error ->
+                    Console.Log "WebSocket connection error!"
+            
         async {
             while true do
                 do! Async.Sleep 1000
-                server.Post <| Action.Message (Server.Request "HELLO")
+                server.Post <| (Server.Request "HELLO")
         }
         |> Async.Start
 
