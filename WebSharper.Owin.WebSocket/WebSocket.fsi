@@ -35,7 +35,7 @@ module Client =
 
     type Agent<'T> = WebSocketServer<'T> -> Message<'T> -> unit
 
-    val Connect : endpoint: Endpoint<'T> -> agent: Agent<'T> -> WebSocketServer<'T>
+    val Connect : endpoint: Endpoint<'T> -> agent: Agent<'T> -> Async<WebSocketServer<'T>>
 
 [<AutoOpen>]
 module Extensions =

@@ -11,24 +11,25 @@ module Client =
 
     let WS (endpoint : Endpoint<Server.Message>)  =
 
-        let server =
-            Connect endpoint <| fun server msg ->
-                match msg with
-                | Message data ->
-                    match data with
-                    | Server.Response x -> Console.Log x
-                    | _ -> ()
-                | Close -> 
-                    Console.Log "Connection closed."
-                | Open ->
-                    Console.Log "WebSocket connection open."
-                | Error ->
-                    Console.Log "WebSocket connection error!"
-            
         async {
+            let! server =
+                Connect endpoint <| fun server msg ->
+                    match msg with
+                    | Message data ->
+                        match data with
+                        | Server.Response x -> Console.Log x
+                        | _ -> ()
+                    | Close -> 
+                        Console.Log "Connection closed."
+                    | Open ->
+                        Console.Log "WebSocket connection open."
+                    | Error ->
+                        Console.Log "WebSocket connection error!"
+            
             while true do
                 do! Async.Sleep 1000
                 server.Post <| (Server.Request "HELLO")
+            
         }
         |> Async.Start
 

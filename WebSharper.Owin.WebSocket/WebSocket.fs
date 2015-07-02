@@ -64,13 +64,18 @@ module Client =
         let server = WebSocketServer(socket)
         let proc = agent server
 
-        socket.Onopen <- fun () -> proc Message.Open
-        socket.Onclose <- fun () -> proc Message.Close
-        socket.Onmessage <- fun msg -> 
-            As<string> msg.Data |> Json.Parse |> Json.Activate |> Message.Message |> proc
-        socket.Onerror <- fun () -> Message.Error |> proc
-
-        server
+        Async.FromContinuations <| fun (ok, ko, _) ->
+            socket.Onopen <- 
+                fun () -> 
+                    proc Message.Open
+                    ok server
+            socket.Onclose <- fun () -> proc Message.Close
+            socket.Onmessage <- fun msg -> 
+                As<string> msg.Data |> Json.Parse |> Json.Activate |> Message.Message |> proc
+            socket.Onerror <- 
+                fun () -> 
+                    Message.Error |> proc
+                    ko <| System.Exception("Could not connect to the server.")
 
 module Server = 
     type Message<'T> =
