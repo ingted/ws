@@ -12,12 +12,18 @@ module private Async =
     let AwaitUnitTask (tsk : System.Threading.Tasks.Task) =
         tsk.ContinueWith(ignore) |> Async.AwaitTask
 
-[<JavaScript>]
 type Endpoint<'T> =
     private {
-        URI : string
+        // the uri of the websocket server
+        URI : string    
+        // the last part of the uri
         Route : string
     }
+
+module Endpoint =
+    let CreateRemote url =  
+        { URI = url
+          Route = "" }
 
 module MessageCoder =
     module J = WebSharper.Core.Json
@@ -59,8 +65,7 @@ module Client =
 
     type Agent<'T> = WebSocketServer<'T> -> Message<'T> -> unit
 
-    let Connect (endpoint : Endpoint<'T>) (agent : Agent<'T>) =
-        let socket = new WebSocket(endpoint.URI)
+    let FromWebSocket socket (agent : Agent<'T>) =
         let server = WebSocketServer(socket)
         let proc = agent server
 
@@ -75,7 +80,13 @@ module Client =
             socket.Onerror <- 
                 fun () -> 
                     Message.Error |> proc
-                    ko <| System.Exception("Could not connect to the server.")
+                    // TODO: test if this is right. Might be called multiple times 
+                    //       or after ok was already called.
+                    ko <| System.Exception("Could not connect to the server.") 
+
+    let Connect (endpoint : Endpoint<'T>) (agent : Agent<'T>) =
+        let socket = new WebSocket(endpoint.URI)
+        FromWebSocket socket agent
 
 module Server = 
     type Message<'T> =

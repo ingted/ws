@@ -1,6 +1,8 @@
 ﻿namespace WebSharper.Owin.WebSocket
 
 type Endpoint<'T>
+module Endpoint =
+    val CreateRemote : url : string -> Endpoint<'T>
 
 module Server =
     open global.Owin.WebSocket
@@ -35,6 +37,7 @@ module Client =
 
     type Agent<'T> = WebSocketServer<'T> -> Message<'T> -> unit
 
+    val FromWebSocket : ws: WebSharper.JavaScript.WebSocket -> agent: Agent<'T> -> Async<WebSocketServer<'T>>
     val Connect : endpoint: Endpoint<'T> -> agent: Agent<'T> -> Async<WebSocketServer<'T>>
 
 [<AutoOpen>]
