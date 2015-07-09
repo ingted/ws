@@ -20,6 +20,7 @@ type Endpoint<'T> =
         Route : string
     }
 
+[<JavaScript>]
 module Endpoint =
     let CreateRemote url =  
         { URI = url

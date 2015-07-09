@@ -9,8 +9,7 @@ open WebSharper.Owin.WebSocket
 module Client =
     open WebSharper.Owin.WebSocket.Client
 
-    let WS (endpoint : Endpoint<Server.Message>)  =
-
+    let WS (endpoint : Endpoint<Server.Message>)  =       
         async {
             let! server =
                 Connect endpoint <| fun server msg ->
