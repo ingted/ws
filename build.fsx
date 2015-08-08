@@ -10,11 +10,14 @@ open System.IO
 let owinws =   
     bt.MSBuild(@"Owin.WebSocket\Owin.WebSocket.csproj")
         .Configuration("Release")
-            .GeneratedAssemblyFiles(
-                [
-                    "build/net45/Owin.WebSocket.dll"
-                ]
-            )
+        .GeneratedAssemblyFiles(
+            [
+                "build/net45/Owin.WebSocket.dll"
+            ])
+
+let MPServiceLocation =
+    Path.Combine(__SOURCE_DIRECTORY__,
+        @"packages\CommonServiceLocator.1.3\lib\portable-net4+sl5+netcore45+wpa81+wp8\Microsoft.Practices.ServiceLocation.dll")
 
 let main =
     bt.WebSharper.Library("WebSharper.Owin.WebSocket")
@@ -26,7 +29,7 @@ let main =
                 r.NuGet("CommonServiceLocator").Reference()
                 r.NuGet("WebSharper.Owin").Reference()
                 r.Project owinws
-                r.File(Path.Combine(__SOURCE_DIRECTORY__, @"packages\CommonServiceLocator.1.3\lib\portable-net4+sl5+netcore45+wpa81+wp8\Microsoft.Practices.ServiceLocation.dll"))
+                r.File(MPServiceLocation)
                 r.Assembly("System.Configuration")
                 r.Assembly "System.Web"
             ])
@@ -36,21 +39,24 @@ let test =
         .SourcesFromProject()
         .References(fun r ->
             [
-                r.NuGet("Owin").Reference()
-                r.NuGet("Microsoft.Owin").Reference()
-                r.NuGet("Owin.WebSocket").Reference()
-                r.NuGet("WebSharper.Owin").Reference()
-                r.NuGet("Microsoft.Owin.Hosting").Reference()
-                r.NuGet("Microsoft.Owin.StaticFiles").Reference()
-                r.NuGet("Microsoft.Owin.FileSystems").Reference()          
-                r.NuGet("Microsoft.Owin.Host.HttpListener").Reference()          
-                r.NuGet("Microsoft.Owin.Diagnostics").Reference()          
-                r.NuGet("Mono.Cecil").Reference()          
-                r.Project main
+                r.NuGet("Owin").Reference().CopyLocal()
+                r.NuGet("Microsoft.Owin").Reference().CopyLocal()
+                r.NuGet("WebSharper.Owin").Reference().CopyLocal()
+                r.NuGet("Microsoft.Owin.Hosting").Reference().CopyLocal()
+                r.NuGet("Microsoft.Owin.StaticFiles").Reference().CopyLocal()
+                r.NuGet("Microsoft.Owin.FileSystems").Reference().CopyLocal()
+                r.NuGet("Microsoft.Owin.Host.HttpListener").Reference().CopyLocal()
+                r.NuGet("Microsoft.Owin.Diagnostics").Reference().CopyLocal()
+                r.NuGet("Mono.Cecil").Reference().CopyLocal()
+                r.Project(owinws).CopyLocal()
+                r.Project(main).CopyLocal()
+                r.File(MPServiceLocation).CopyLocal()
                 r.Assembly("System.Configuration")
-                r.Assembly "System.Web"
+                r.Assembly("System.Web")
             ])
-        
+    |> FSharpConfig.OutputPath.Custom
+        (__SOURCE_DIRECTORY__ + "/WebSharper.Owin.WebSocket.Test/bin/WebSharper.Owin.WebSocket.Test.exe")
+
 bt.Solution [
     owinws
     main
