@@ -12,7 +12,7 @@ module private Async =
     let AwaitUnitTask (tsk : System.Threading.Tasks.Task) =
         tsk.ContinueWith(ignore) |> Async.AwaitTask
 
-type Endpoint<'T> =
+type Endpoint<'S2C, 'C2S> =
     private {
         // the uri of the websocket server
         URI : string    
@@ -40,8 +40,8 @@ module MessageCoder =
         J.Parse str
         |> dec.Decode
 
-type private InternalMessage<'T> =
-    | Message of WebSocketConnection * 'T
+type private InternalMessage<'C2S> =
+    | Message of WebSocketConnection * 'C2S
     | Error of WebSocketConnection * exn
     | Close of WebSocketConnection
     | Open of WebSocketConnection
@@ -54,19 +54,19 @@ type Action<'T> =
 module Client =
     open WebSharper.JavaScript
 
-    type Message<'T> =
-        | Message of 'T
+    type Message<'S2C> =
+        | Message of 'S2C
         | Error 
         | Open
         | Close
 
-    type WebSocketServer<'T>(conn: WebSocket) =
+    type WebSocketServer<'S2C, 'C2S>(conn: WebSocket) =
         member this.Connection = conn
-        member this.Post (msg: 'T) = msg |> Json.Stringify |> conn.Send
+        member this.Post (msg: 'C2S) = msg |> Json.Stringify |> conn.Send
 
-    type Agent<'T> = WebSocketServer<'T> -> Message<'T> -> unit
+    type Agent<'S2C, 'C2S> = WebSocketServer<'S2C, 'C2S> -> Message<'S2C> -> unit
 
-    let FromWebSocket socket (agent : Agent<'T>) =
+    let FromWebSocket socket (agent : Agent<'S2C, 'C2S>) =
         let server = WebSocketServer(socket)
         let proc = agent server
 
@@ -85,27 +85,27 @@ module Client =
                     //       or after ok was already called.
                     ko <| System.Exception("Could not connect to the server.") 
 
-    let Connect (endpoint : Endpoint<'T>) (agent : Agent<'T>) =
+    let Connect (endpoint : Endpoint<'S2C, 'C2S>) (agent : Agent<'S2C, 'C2S>) =
         let socket = new WebSocket(endpoint.URI)
         FromWebSocket socket agent
 
 module Server = 
-    type Message<'T> =
-        | Message of 'T
+    type Message<'C2S> =
+        | Message of 'C2S
         | Error of exn
         | Close
 
-    type WebSocketClient<'T>(conn: WebSocketConnection, jP) =
-        let onMessage = Event<'T>()
+    type WebSocketClient<'S2C, 'C2S>(conn: WebSocketConnection, jP) =
+        let onMessage = Event<'C2S>()
         let onClose = Event<unit>()
         let onError = Event<exn>()
 
         member this.Connection = conn
-        member this.PostAsync (value: 'T) =
+        member this.PostAsync (value: 'S2C) =
             let msg = MessageCoder.ToJString jP value
             let bytes = System.Text.Encoding.UTF8.GetBytes(msg)
             conn.SendText(bytes, true) |> Async.AwaitUnitTask
-        member this.Post (value: 'T) = this.PostAsync value |> Async.Start
+        member this.Post (value: 'S2C) = this.PostAsync value |> Async.Start
         member this.OnMessage = onMessage.Publish
         member this.OnClose = onClose.Publish
         member this.OnError = onError.Publish
@@ -117,21 +117,21 @@ module Server =
     let GetEndpoint (url : string) (route : string) =
         let uri = System.Uri(System.Uri(url), route)
         let wsuri = sprintf "ws://%s%s" uri.Authority uri.AbsolutePath
-        { URI = wsuri; Route = route } : Endpoint<'T>
+        { URI = wsuri; Route = route } : Endpoint<'S2C, 'C2S>
 
-    type Agent<'T> = WebSocketClient<'T> -> Message<'T> -> unit
+    type Agent<'S2C, 'C2S> = WebSocketClient<'S2C, 'C2S> -> Message<'C2S> -> unit
 
-type private WebSocketProcessor<'T> =
+type private WebSocketProcessor<'S2C, 'C2S> =
     {
-        Agent : Server.Agent<'T>
+        Agent : Server.Agent<'S2C, 'C2S>
         JsonProvider : Core.Json.Provider    
     }
 
-type private ProcessWebSocketConnection<'T>
-    (processor : WebSocketProcessor<'T>) =
+type private ProcessWebSocketConnection<'S2C, 'C2S>
+    (processor : WebSocketProcessor<'S2C, 'C2S>) =
 
     inherit WebSocketConnection()
-    let mutable post = None : Option<Server.Message<'T> -> unit>
+    let mutable post = None : Option<Server.Message<'C2S> -> unit>
 
     override x.OnClose(status, desc) =
         post |> Option.iter (fun p -> p Server.Close)
@@ -151,7 +151,7 @@ type private ProcessWebSocketConnection<'T>
     override x.OnReceiveError(ex) = 
         post.Value(Server.Error ex)
 
-type private WebSocketServiceLocator<'T>(processor : WebSocketProcessor<'T>) =
+type private WebSocketServiceLocator<'S2C, 'C2S>(processor : WebSocketProcessor<'S2C, 'C2S>) =
     interface IServiceLocator with
 
         member x.GetService(typ) =
@@ -181,12 +181,12 @@ type private WebSocketServiceLocator<'T>(processor : WebSocketProcessor<'T>) =
 [<AutoOpen>]
 module Extensions =
     type WebSharperOptions<'T when 'T: equality> with
-        member this.WithWebSocketServer (endpoint: Endpoint<'U>, agent : Server.Agent<'U>) =
+        member this.WithWebSocketServer (endpoint: Endpoint<'S2C, 'C2S>, agent : Server.Agent<'S2C, 'C2S>) =
             this.WithInitAction(fun (builder, json) -> 
                 let processor =
                     {
                         Agent = agent
                         JsonProvider = json
                     }
-                builder.MapWebSocketRoute<ProcessWebSocketConnection<'U>>(endpoint.Route, WebSocketServiceLocator<'U>(processor))
+                builder.MapWebSocketRoute<ProcessWebSocketConnection<'S2C, 'C2S>>(endpoint.Route, WebSocketServiceLocator<'S2C, 'C2S>(processor))
             )

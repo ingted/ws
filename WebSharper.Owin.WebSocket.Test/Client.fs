@@ -9,15 +9,15 @@ open WebSharper.Owin.WebSocket
 module Client =
     open WebSharper.Owin.WebSocket.Client
 
-    let WS (endpoint : Endpoint<Server.Message>)  =       
+    let WS (endpoint : Endpoint<Server.S2CMessage, Server.C2SMessage>) =
         async {
             let! server =
                 Connect endpoint <| fun server msg ->
                     match msg with
                     | Message data ->
                         match data with
-                        | Server.Response x -> Console.Log x
-                        | _ -> ()
+                        | Server.Response1 x -> Console.Log x
+                        | Server.Response2 x -> Console.Log x
                     | Close -> 
                         Console.Log "Connection closed."
                     | Open ->
@@ -27,8 +27,9 @@ module Client =
             
             while true do
                 do! Async.Sleep 1000
-                server.Post <| (Server.Request "HELLO")
-            
+                server.Post (Server.Request1 "HELLO")
+                do! Async.Sleep 1000
+                server.Post (Server.Request2 123)
         }
         |> Async.Start
 
