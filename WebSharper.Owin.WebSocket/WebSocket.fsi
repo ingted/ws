@@ -1,8 +1,21 @@
 ﻿namespace WebSharper.Owin.WebSocket
 
-type Endpoint<'S2C, 'C2S>
-module Endpoint =
-    val CreateRemote : url : string -> Endpoint<'S2C, 'C2S>
+type JsonEncoding =
+    | Typed = 0
+    | Readable = 1
+
+[<Sealed>]
+type Endpoint<'S2C, 'C2S> =
+    static member Create
+        : url: string
+        * route: string
+        * ?encoding: JsonEncoding
+        -> Endpoint<'S2C, 'C2S>
+
+    static member CreateRemote
+        : url : string
+        * ?encoding: JsonEncoding
+        -> Endpoint<'S2C, 'C2S>
 
 module Server =
     open global.Owin.WebSocket
@@ -17,8 +30,6 @@ module Server =
         member Connection : WebSocketConnection
         member PostAsync : 'S2C -> Async<unit>
         member Post : 'S2C -> unit
-
-    val GetEndpoint<'S2C, 'C2S> : url: string -> route: string -> Endpoint<'S2C, 'C2S>
 
     type Agent<'S2C, 'C2S> = WebSocketClient<'S2C, 'C2S> -> Message<'C2S> -> unit
 
@@ -37,7 +48,7 @@ module Client =
 
     type Agent<'S2C, 'C2S> = WebSocketServer<'S2C, 'C2S> -> Message<'S2C> -> unit
 
-    val FromWebSocket : ws: WebSharper.JavaScript.WebSocket -> agent: Agent<'S2C, 'C2S> -> Async<WebSocketServer<'S2C, 'C2S>>
+    val FromWebSocket : ws: WebSharper.JavaScript.WebSocket -> agent: Agent<'S2C, 'C2S> -> JsonEncoding -> Async<WebSocketServer<'S2C, 'C2S>>
     val Connect : endpoint: Endpoint<'S2C, 'C2S> -> agent: Agent<'S2C, 'C2S> -> Async<WebSocketServer<'S2C, 'C2S>>
 
 [<AutoOpen>]

@@ -4,13 +4,15 @@ module Server =
     open WebSharper
     open WebSharper.Owin.WebSocket.Server
 
-    type C2SMessage =
-        | Request1 of string
-        | Request2 of int
-
-    and S2CMessage =
-        | Response2 of int
-        | Response1 of string
+    type [<NamedUnionCases>]
+        C2SMessage =
+        | Request1 of str: string
+        | Request2 of int: int
+    
+    and [<NamedUnionCases "type">]
+        S2CMessage =
+        | [<CompiledName "int">] Response2 of value: int
+        | [<CompiledName "string">] Response1 of value: string
 
     let Start route : Agent<S2CMessage, C2SMessage> =
         /// print to debug output

@@ -55,7 +55,7 @@ module SelfHostedServer =
     let Main = function
         | [| rootDirectory; url |] ->
             use server = WebApp.Start(url, fun appB ->
-                let ep = Server.GetEndpoint url "/ws"
+                let ep = Endpoint.Create(url, "/ws", JsonEncoding.Readable)
                 appB.UseStaticFiles(
                         StaticFileOptions(FileSystem = PhysicalFileSystem(rootDirectory))
                 )
