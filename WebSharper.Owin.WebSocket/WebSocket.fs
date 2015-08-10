@@ -17,6 +17,17 @@ module private Async =
     let AwaitUnitTask (tsk : System.Threading.Tasks.Task) =
         tsk.ContinueWith(ignore) |> Async.AwaitTask
 
+    [<JavaScript>]
+    let FoldAgent initState f =
+        MailboxProcessor.Start(fun inbox ->
+            let rec loop state : Async<unit> = async {
+                let! msg = inbox.Receive()
+                let! newState = f state msg
+                return! loop newState
+            }
+            loop initState
+        )
+
 type Endpoint<'S2C, 'C2S> =
     private {
         // the uri of the websocket server
@@ -61,27 +72,7 @@ module MessageCoder =
 type Action<'T> =
     | Message of 'T
     | Close
-
-module internal Macro =
-    open WebSharper.Core.Macros
-    module Q = WebSharper.Core.Quotations
-    module J = WebSharper.Core.JavaScript.Core
-
-    type M() =
-        interface IMacro with
-            member this.Translate(q, tr) =
-                let fail() = failwithf "Wrong use of macro %s" typeof<M>.FullName
-                match q with
-                | Q.CallOrCallModule ({Generics = [s2c; c2s]; Entity = m}, args) ->
-                    let enc = WebSharper.Json.Macro.SerializeLambda ignore tr c2s
-                    let dec = WebSharper.Json.Macro.DeserializeLambda ignore tr s2c
-                    J.Call(
-                        J.Global ["WebSharper"; "Owin"; "WebSocket"; "Client"; "WithEncoding"],
-                        !~(J.String m.Name),
-                        enc :: dec :: List.map tr args)
-                | _ -> fail()
     
-[<JavaScript>]
 module Client =
     open WebSharper.JavaScript
 
@@ -91,15 +82,41 @@ module Client =
         | Open
         | Close
 
+    [<JavaScript>]
     type WebSocketServer<'S2C, 'C2S>(conn: WebSocket, encode: 'C2S -> string) =
         member this.Connection = conn
         member this.Post (msg: 'C2S) = msg |> encode |> conn.Send
 
     type Agent<'S2C, 'C2S> = WebSocketServer<'S2C, 'C2S> -> Message<'S2C> -> unit
 
-    module WithEncoding =
+    type StatefulAgent<'S2C, 'C2S, 'State> = WebSocketServer<'S2C, 'C2S> -> 'State * ('State -> Message<'S2C> -> Async<'State>)
 
-        let FromWebSocket (encode: 'C2S -> string) (decode: string -> 'S2C) socket (agent : Agent<'S2C, 'C2S>) jsonEncoding =
+    [<JavaScript>]
+    type WithEncoding =
+
+        static member FromWebSocketStateful (encode: 'C2S -> string) (decode: string -> 'S2C) socket (agent : StatefulAgent<'S2C, 'C2S, 'State>) jsonEncoding =
+            let encode, decode =
+                if jsonEncoding = JsonEncoding.Typed then
+                    Json.Stringify, Json.Parse >> Json.Activate
+                else
+                    encode, decode
+            let server = WebSocketServer(socket, encode)
+            let agent = agent server ||> Async.FoldAgent
+            Async.FromContinuations <| fun (ok, ko, _) ->
+                socket.Onopen <- fun () ->
+                    agent.Post Message.Open
+                    ok server
+                socket.Onclose <- fun () ->
+                    agent.Post Message.Close
+                socket.Onmessage <- fun msg ->
+                    agent.Post (As<string> msg.Data |> decode |> Message.Message)
+                socket.Onerror <- fun () ->
+                    agent.Post Message.Error
+                    // TODO: test if this is right. Might be called multiple times 
+                    //       or after ok was already called.
+                    ko <| System.Exception("Could not connect to the server.") 
+
+        static member FromWebSocket (encode: 'C2S -> string) (decode: string -> 'S2C) socket (agent : Agent<'S2C, 'C2S>) jsonEncoding =
             let encode, decode =
                 if jsonEncoding = JsonEncoding.Typed then
                     Json.Stringify, Json.Parse >> Json.Activate
@@ -109,32 +126,71 @@ module Client =
             let proc = agent server
 
             Async.FromContinuations <| fun (ok, ko, _) ->
-                socket.Onopen <- 
-                    fun () -> 
-                        proc Message.Open
-                        ok server
-                socket.Onclose <- fun () -> proc Message.Close
+                socket.Onopen <- fun () -> 
+                    proc Message.Open
+                    ok server
+                socket.Onclose <- fun () ->
+                    proc Message.Close
                 socket.Onmessage <- fun msg -> 
                     As<string> msg.Data |> decode |> Message.Message |> proc
-                socket.Onerror <- 
-                    fun () -> 
-                        Message.Error |> proc
-                        // TODO: test if this is right. Might be called multiple times 
-                        //       or after ok was already called.
-                        ko <| System.Exception("Could not connect to the server.") 
+                socket.Onerror <- fun () -> 
+                    proc Message.Error
+                    // TODO: test if this is right. Might be called multiple times 
+                    //       or after ok was already called.
+                    ko <| System.Exception("Could not connect to the server.") 
 
         [<MethodImpl(MethodImplOptions.NoInlining)>]
-        let Connect encode decode (endpoint : Endpoint<'S2C, 'C2S>) (agent : Agent<'S2C, 'C2S>) =
+        static member ConnectStateful encode decode (endpoint : Endpoint<'S2C, 'C2S>) (agent : StatefulAgent<'S2C, 'C2S, 'State>) =
             let socket = new WebSocket(endpoint.URI)
-            FromWebSocket encode decode socket agent endpoint.JsonEncoding
+            WithEncoding.FromWebSocketStateful encode decode socket agent endpoint.JsonEncoding
+
+        [<MethodImpl(MethodImplOptions.NoInlining)>]
+        static member Connect encode decode (endpoint : Endpoint<'S2C, 'C2S>) (agent : Agent<'S2C, 'C2S>) =
+            let socket = new WebSocket(endpoint.URI)
+            WithEncoding.FromWebSocket encode decode socket agent endpoint.JsonEncoding
+
+    module internal Macro =
+        open WebSharper.Core.Macros
+        module Q = WebSharper.Core.Quotations
+        module J = WebSharper.Core.JavaScript.Core
+        module R = WebSharper.Core.Reflection
+        type BF = System.Reflection.BindingFlags
+
+        type M() =
+            interface IMacro with
+                member this.Translate(q, tr) =
+                    let fail() = failwithf "Wrong use of macro %s" typeof<M>.FullName
+                    match q with
+                    | Q.CallOrCallModule ({Generics = s2c::c2s::_ as g; Entity = m}, args) ->
+                        match tr <|
+                            Q.CallModule(
+                                { Generics = g
+                                  Entity = R.Method.Parse(typeof<WithEncoding>.GetMethod(m.Name, BF.Static ||| BF.NonPublic))},
+                                Q.DefaultValue s2c :: Q.DefaultValue c2s :: args) with
+                        | J.Call(ns, n, _ :: _ :: args) ->
+                            let enc = WebSharper.Json.Macro.SerializeLambda ignore tr c2s
+                            let dec = WebSharper.Json.Macro.DeserializeLambda ignore tr s2c
+                            J.Call(ns, n, enc :: dec :: args)
+                        | _ -> fail()
+                    | _ -> fail()
 
     [<Macro(typeof<Macro.M>)>]
     let FromWebSocket<'S2C, 'C2S> (socket: WebSocket) (agent: Agent<'S2C, 'C2S>) jsonEncoding =
         WithEncoding.FromWebSocket Unchecked.defaultof<_> Unchecked.defaultof<_> socket agent jsonEncoding
 
+    [<Macro(typeof<Macro.M>); JavaScript>]
+    let FromWebSocketStateful<'S2C, 'C2S, 'State> (socket: WebSocket) (agent: StatefulAgent<'S2C, 'C2S, 'State>) jsonEncoding =
+        let x = Async.FoldAgent () (fun () -> async.Return)
+        WithEncoding.FromWebSocketStateful Unchecked.defaultof<_> Unchecked.defaultof<_> socket agent jsonEncoding
+
     [<Macro(typeof<Macro.M>)>]
     let Connect<'S2C, 'C2S> (endpoint: Endpoint<'S2C, 'C2S>) (agent: Agent<'S2C, 'C2S>) =
         WithEncoding.Connect Unchecked.defaultof<_> Unchecked.defaultof<_> endpoint agent
+
+    [<Macro(typeof<Macro.M>); JavaScript>]
+    let ConnectStateful<'S2C, 'C2S, 'State> (endpoint: Endpoint<'S2C, 'C2S>) (agent: StatefulAgent<'S2C, 'C2S, 'State>) =
+        let x = Async.FoldAgent () (fun () -> async.Return)
+        WithEncoding.ConnectStateful Unchecked.defaultof<_> Unchecked.defaultof<_> endpoint agent
 
 module Server = 
     type Message<'C2S> =
@@ -162,6 +218,8 @@ module Server =
         member internal this.Error e = onError.Trigger(e)
 
     type Agent<'S2C, 'C2S> = WebSocketClient<'S2C, 'C2S> -> Message<'C2S> -> unit
+
+    type StatefulAgent<'S2C, 'C2S, 'State> = WebSocketClient<'S2C, 'C2S> -> 'State * ('State -> Message<'C2S> -> Async<'State>)
 
 type private WebSocketProcessor<'S2C, 'C2S> =
     {
@@ -223,6 +281,7 @@ type private WebSocketServiceLocator<'S2C, 'C2S>(processor : WebSocketProcessor<
 [<AutoOpen>]
 module Extensions =
     type WebSharperOptions<'T when 'T: equality> with
+
         member this.WithWebSocketServer (endpoint: Endpoint<'S2C, 'C2S>, agent : Server.Agent<'S2C, 'C2S>) =
             this.WithInitAction(fun (builder, json) ->
                 let json =
@@ -237,4 +296,9 @@ module Extensions =
                     }
                 builder.MapWebSocketRoute<ProcessWebSocketConnection<'S2C, 'C2S>>(
                     endpoint.Route, WebSocketServiceLocator<'S2C, 'C2S>(processor))
+            )
+
+        member this.WithWebSocketServer (endpoint: Endpoint<'S2C, 'C2S>, agent : Server.StatefulAgent<'S2C, 'C2S, 'State>) =
+            this.WithWebSocketServer(endpoint, fun client ->
+                (agent client ||> Async.FoldAgent).Post
             )

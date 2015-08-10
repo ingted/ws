@@ -49,6 +49,8 @@ module Server =
 
     type Agent<'S2C, 'C2S> = WebSocketClient<'S2C, 'C2S> -> Message<'C2S> -> unit
 
+    type StatefulAgent<'S2C, 'C2S, 'State> = WebSocketClient<'S2C, 'C2S> -> 'State * ('State -> Message<'C2S> -> Async<'State>)
+
 /// WebSocket client.
 module Client =
 
@@ -67,11 +69,19 @@ module Client =
 
     type Agent<'S2C, 'C2S> = WebSocketServer<'S2C, 'C2S> -> Message<'S2C> -> unit
 
+    type StatefulAgent<'S2C, 'C2S, 'State> = WebSocketServer<'S2C, 'C2S> -> 'State * ('State -> Message<'S2C> -> Async<'State>)
+
     /// Connect to a websocket server.
     val FromWebSocket : ws: WebSharper.JavaScript.WebSocket -> agent: Agent<'S2C, 'C2S> -> JsonEncoding -> Async<WebSocketServer<'S2C, 'C2S>>
 
     /// Connect to a websocket server.
+    val FromWebSocketStateful : ws: WebSharper.JavaScript.WebSocket -> agent: StatefulAgent<'S2C, 'C2S, 'State> -> JsonEncoding -> Async<WebSocketServer<'S2C, 'C2S>>
+
+    /// Connect to a websocket server.
     val Connect : endpoint: Endpoint<'S2C, 'C2S> -> agent: Agent<'S2C, 'C2S> -> Async<WebSocketServer<'S2C, 'C2S>>
+
+    /// Connect to a websocket server.
+    val ConnectStateful : endpoint: Endpoint<'S2C, 'C2S> -> agent: StatefulAgent<'S2C, 'C2S, 'State> -> Async<WebSocketServer<'S2C, 'C2S>>
 
 [<AutoOpen>]
 module Extensions =
@@ -80,3 +90,5 @@ module Extensions =
     type WebSharperOptions<'T when 'T: equality> with
         /// Serve websockets on the given endpoint.
         member WithWebSocketServer : endPoint: Endpoint<'S2C, 'C2S> * agent: Server.Agent<'S2C, 'C2S> -> WebSharperOptions<'T>
+        /// Serve websockets on the given endpoint.
+        member WithWebSocketServer : endPoint: Endpoint<'S2C, 'C2S> * agent: Server.StatefulAgent<'S2C, 'C2S, 'State> -> WebSharperOptions<'T>

@@ -14,17 +14,28 @@ module Server =
         | [<CompiledName "int">] Response2 of value: int
         | [<CompiledName "string">] Response1 of value: string
 
-    let Start route : Agent<S2CMessage, C2SMessage> =
-        /// print to debug output
-        let dprintfn x = Printf.ksprintf System.Diagnostics.Debug.WriteLine x
+    let Start route : StatefulAgent<S2CMessage, C2SMessage, int> =
+        /// print to debug output and stdout
+        let dprintfn x =
+            Printf.ksprintf (fun s ->
+                System.Diagnostics.Debug.WriteLine s
+                stdout.WriteLine s
+            ) x
 
         fun client ->
-            fun msg -> 
+            let clientIp = client.Connection.Context.Request.RemoteIpAddress
+            0, fun state msg -> async {
+                eprintfn "Received message #%i from %s" state clientIp
                 match msg with
                 | Message data -> 
                     match data with
-                    | Request1 x -> client.PostAsync (Response1 x) |> Async.Start
-                    | Request2 x -> client.PostAsync (Response2 x) |> Async.Start
+                    | Request1 x -> do! client.PostAsync (Response1 x)
+                    | Request2 x -> do! client.PostAsync (Response2 x)
+                    return state + 1
                 | Error exn -> 
-                    dprintfn "Error in WebSocket server: %s" exn.Message
-                | Close -> ()
+                    dprintfn "Error in WebSocket server connected to %s: %s" clientIp exn.Message
+                    return state
+                | Close ->
+                    eprintfn "Closed connection to %s" clientIp
+                    return state
+            }

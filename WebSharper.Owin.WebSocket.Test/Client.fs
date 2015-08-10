@@ -12,18 +12,24 @@ module Client =
     let WS (endpoint : Endpoint<Server.S2CMessage, Server.C2SMessage>) =
         async {
             let! server =
-                Connect endpoint <| fun server msg ->
-                    match msg with
-                    | Message data ->
-                        match data with
-                        | Server.Response1 x -> Console.Log x
-                        | Server.Response2 x -> Console.Log x
-                    | Close -> 
-                        Console.Log "Connection closed."
-                    | Open ->
-                        Console.Log "WebSocket connection open."
-                    | Error ->
-                        Console.Log "WebSocket connection error!"
+                ConnectStateful endpoint <| fun server ->
+                    0, fun state msg -> async {
+                        match msg with
+                        | Message data ->
+                            match data with
+                            | Server.Response1 x -> Console.Log (state, x)
+                            | Server.Response2 x -> Console.Log (state, x)
+                            return (state + 1)
+                        | Close ->
+                            Console.Log "Connection closed."
+                            return state
+                        | Open ->
+                            Console.Log "WebSocket connection open."
+                            return state
+                        | Error ->
+                            Console.Log "WebSocket connection error!"
+                            return state
+                    }
             
             while true do
                 do! Async.Sleep 1000
