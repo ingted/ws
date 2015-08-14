@@ -43,6 +43,7 @@ module Server =
     /// A client to which you can post messages.
     [<Class>]
     type WebSocketClient<'S2C, 'C2S> =
+        member JsonProvider : WebSharper.Core.Json.Provider
         member Connection : WebSocketConnection
         member PostAsync : 'S2C -> Async<unit>
         member Post : 'S2C -> unit

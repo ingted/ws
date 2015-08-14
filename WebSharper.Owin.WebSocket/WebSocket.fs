@@ -203,6 +203,7 @@ module Server =
         let onClose = Event<unit>()
         let onError = Event<exn>()
 
+        member this.JsonProvider = jP
         member this.Connection = conn
         member this.PostAsync (value: 'S2C) =
             let msg = MessageCoder.ToJString jP value
