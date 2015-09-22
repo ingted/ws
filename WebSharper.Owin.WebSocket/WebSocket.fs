@@ -6,7 +6,6 @@ open Owin.WebSocket.Extensions
 open System.Runtime.CompilerServices
 open WebSharper
 open WebSharper.Owin
-      
 open Microsoft.Practices.ServiceLocation
 
 type JsonEncoding =
@@ -31,7 +30,7 @@ module private Async =
 type Endpoint<'S2C, 'C2S> =
     private {
         // the uri of the websocket server
-        URI : string    
+        URI : string
         // the last part of the uri
         Route : string
         // the encoding of messages
@@ -72,13 +71,13 @@ module MessageCoder =
 type Action<'T> =
     | Message of 'T
     | Close
-    
+
 module Client =
     open WebSharper.JavaScript
 
     type Message<'S2C> =
         | Message of 'S2C
-        | Error 
+        | Error
         | Open
         | Close
 
@@ -112,9 +111,9 @@ module Client =
                     agent.Post (As<string> msg.Data |> decode |> Message.Message)
                 socket.Onerror <- fun () ->
                     agent.Post Message.Error
-                    // TODO: test if this is right. Might be called multiple times 
+                    // TODO: test if this is right. Might be called multiple times
                     //       or after ok was already called.
-                    ko <| System.Exception("Could not connect to the server.") 
+                    ko <| System.Exception("Could not connect to the server.")
 
         static member FromWebSocket (encode: 'C2S -> string) (decode: string -> 'S2C) socket (agent : Agent<'S2C, 'C2S>) jsonEncoding =
             let encode, decode =
@@ -126,18 +125,18 @@ module Client =
             let proc = agent server
 
             Async.FromContinuations <| fun (ok, ko, _) ->
-                socket.Onopen <- fun () -> 
+                socket.Onopen <- fun () ->
                     proc Message.Open
                     ok server
                 socket.Onclose <- fun () ->
                     proc Message.Close
-                socket.Onmessage <- fun msg -> 
+                socket.Onmessage <- fun msg ->
                     As<string> msg.Data |> decode |> Message.Message |> proc
-                socket.Onerror <- fun () -> 
+                socket.Onerror <- fun () ->
                     proc Message.Error
-                    // TODO: test if this is right. Might be called multiple times 
+                    // TODO: test if this is right. Might be called multiple times
                     //       or after ok was already called.
-                    ko <| System.Exception("Could not connect to the server.") 
+                    ko <| System.Exception("Could not connect to the server.")
 
         [<MethodImpl(MethodImplOptions.NoInlining)>]
         static member ConnectStateful encode decode (endpoint : Endpoint<'S2C, 'C2S>) (agent : StatefulAgent<'S2C, 'C2S, 'State>) =
@@ -192,19 +191,21 @@ module Client =
         let x = Async.FoldAgent () (fun () -> async.Return)
         WithEncoding.ConnectStateful Unchecked.defaultof<_> Unchecked.defaultof<_> endpoint agent
 
-module Server = 
+module Server =
     type Message<'C2S> =
         | Message of 'C2S
         | Error of exn
         | Close
 
-    type WebSocketClient<'S2C, 'C2S>(conn: WebSocketConnection, jP) =
+    type WebSocketClient<'S2C, 'C2S>(conn: WebSocketConnection, getContext, jP) =
         let onMessage = Event<'C2S>()
         let onClose = Event<unit>()
         let onError = Event<exn>()
+        let ctx = getContext conn.Context
 
         member this.JsonProvider = jP
         member this.Connection = conn
+        member this.Context : WebSharper.Web.IContext = ctx
         member this.PostAsync (value: 'S2C) =
             let msg = MessageCoder.ToJString jP value
             let bytes = System.Text.Encoding.UTF8.GetBytes(msg)
@@ -225,7 +226,8 @@ module Server =
 type private WebSocketProcessor<'S2C, 'C2S> =
     {
         Agent : Server.Agent<'S2C, 'C2S>
-        JsonProvider : Core.Json.Provider    
+        GetContext : Microsoft.Owin.IOwinContext -> Web.IContext
+        JsonProvider : Core.Json.Provider
     }
 
 type private ProcessWebSocketConnection<'S2C, 'C2S>
@@ -238,7 +240,7 @@ type private ProcessWebSocketConnection<'S2C, 'C2S>
         post |> Option.iter (fun p -> p Server.Close)
 
     override x.OnOpen() =
-        let cl = Server.WebSocketClient(x, processor.JsonProvider)
+        let cl = Server.WebSocketClient(x, processor.GetContext, processor.JsonProvider)
         post <- Some (processor.Agent cl)
 
     override x.OnMessageReceived(message, typ) =
@@ -249,7 +251,7 @@ type private ProcessWebSocketConnection<'S2C, 'C2S>
         }
         |> Async.StartAsTask :> _
 
-    override x.OnReceiveError(ex) = 
+    override x.OnReceiveError(ex) =
         post.Value(Server.Error ex)
 
 type private WebSocketServiceLocator<'S2C, 'C2S>(processor : WebSocketProcessor<'S2C, 'C2S>) =
@@ -284,7 +286,7 @@ module Extensions =
     type WebSharperOptions<'T when 'T: equality> with
 
         member this.WithWebSocketServer (endpoint: Endpoint<'S2C, 'C2S>, agent : Server.Agent<'S2C, 'C2S>) =
-            this.WithInitAction(fun (builder, json) ->
+            this.WithInitAction(fun (builder, json, getContext) ->
                 let json =
                     if endpoint.JsonEncoding = JsonEncoding.Typed then
                         json
@@ -293,6 +295,7 @@ module Extensions =
                 let processor =
                     {
                         Agent = agent
+                        GetContext = getContext
                         JsonProvider = json
                     }
                 builder.MapWebSocketRoute<ProcessWebSocketConnection<'S2C, 'C2S>>(

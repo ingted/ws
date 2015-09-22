@@ -45,6 +45,7 @@ module Server =
     type WebSocketClient<'S2C, 'C2S> =
         member JsonProvider : WebSharper.Core.Json.Provider
         member Connection : WebSocketConnection
+        member Context : WebSharper.Web.IContext
         member PostAsync : 'S2C -> Async<unit>
         member Post : 'S2C -> unit
 
