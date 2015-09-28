@@ -3,6 +3,7 @@ namespace WebSharper.Owin.WebSocket
 open Owin
 open Owin.WebSocket
 open Owin.WebSocket.Extensions
+open System.Collections.Generic
 open System.Runtime.CompilerServices
 open WebSharper
 open WebSharper.Owin
@@ -48,6 +49,19 @@ type Endpoint<'S2C, 'C2S> =
     static member Create (url : string, route : string, ?encoding: JsonEncoding) =
         let uri = System.Uri(System.Uri(url), route)
         let wsuri = sprintf "ws://%s%s" uri.Authority uri.AbsolutePath
+        {
+            URI = wsuri
+            Route = route
+            JsonEncoding = defaultArg encoding JsonEncoding.Typed
+        } : Endpoint<'S2C, 'C2S>
+
+    static member Create (app: IAppBuilder, route: string, ?encoding: JsonEncoding) =
+        let addr = (app.Properties.["host.Addresses"] :?> List<IDictionary<string,obj>>).[0]
+        let wsuri =
+            let host = addr.["host"] :?> string
+            let port = addr.["port"] :?> string
+            let path = addr.["path"] :?> string
+            "ws://" + host + ":" + port + path
         {
             URI = wsuri
             Route = route

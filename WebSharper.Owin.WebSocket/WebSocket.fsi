@@ -23,6 +23,14 @@ type Endpoint<'S2C, 'C2S> =
         * ?encoding: JsonEncoding
         -> Endpoint<'S2C, 'C2S>
 
+    /// Create a websockets endpoint for a given Owin app and path.
+    /// Call this on the server side and pass it down to the client.
+    static member Create
+        : Owin.IAppBuilder
+        * route: string
+        * ?encoding: JsonEncoding
+        -> Endpoint<'S2C, 'C2S>
+
     /// Create a websockets endpoint for a given full URL.
     /// Call this to connect to an external websocket from the client.
     static member CreateRemote
