@@ -4,6 +4,8 @@ open IntelliFactory.Build
 let bt =
     BuildTool().PackageId("WebSharper.Owin.WebSocket")
         .VersionFrom("WebSharper")
+        .WithFSharpVersion(FSharpVersion.FSharp30)
+        .WithFramework(fun fw -> fw.Net45)
 
 open System.IO
 
@@ -24,10 +26,10 @@ let main =
         .SourcesFromProject()
         .References(fun r ->
             [
-                r.NuGet("Owin").Reference()
-                r.NuGet("Microsoft.Owin").Reference()
-                r.NuGet("CommonServiceLocator").Reference()
-                r.NuGet("WebSharper.Owin").Reference()
+                r.NuGet("Owin").ForceFoundVersion().Reference()
+                r.NuGet("Microsoft.Owin").ForceFoundVersion().Reference()
+                r.NuGet("CommonServiceLocator").ForceFoundVersion().Reference()
+                r.NuGet("WebSharper.Owin").ForceFoundVersion().Reference()
                 r.Project owinws
                 r.File(MPServiceLocation)
                 r.Assembly("System.Configuration")
@@ -41,6 +43,7 @@ let test =
             [
                 r.NuGet("Owin").Reference().CopyLocal()
                 r.NuGet("Microsoft.Owin").Reference().CopyLocal()
+                r.NuGet("WebSharper.Html").Reference().CopyLocal()
                 r.NuGet("WebSharper.Owin").Reference().CopyLocal()
                 r.NuGet("Microsoft.Owin.Hosting").Reference().CopyLocal()
                 r.NuGet("Microsoft.Owin.StaticFiles").Reference().CopyLocal()
