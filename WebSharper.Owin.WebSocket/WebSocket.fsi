@@ -1,15 +1,18 @@
 ﻿namespace WebSharper.Owin.WebSocket
 
 /// Which JSON encoding to use when sending messages through the websocket.
+[<RequireQualifiedAccess>]
 type JsonEncoding =
     /// Verbose encoding that includes extra type information.
     /// This is the same encoding used by WebSharper RPC.
-    | Typed = 0
+    | Typed
     /// Readable and external API-friendly encoding that drops
     /// some information regarding subtypes.
     /// This is the same encoding used by WebSharper Sitelets
     /// and by the WebSharper.Json.Serialize family of functions.
-    | Readable = 1
+    | Readable
+    /// Use the given server-side and client-side JSON encoding providers.
+    | Custom of WebSharper.Core.Json.Provider * WebSharper.Json.Provider
 
 /// A WebSockets endpoint.
 [<Sealed>]

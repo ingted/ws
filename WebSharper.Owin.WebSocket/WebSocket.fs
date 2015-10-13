@@ -9,9 +9,17 @@ open WebSharper
 open WebSharper.Owin
 open Microsoft.Practices.ServiceLocation
 
+[<RequireQualifiedAccess>]
 type JsonEncoding =
-    | Typed = 0
-    | Readable = 1
+    | Typed
+    | Readable
+    | Custom of WebSharper.Core.Json.Provider * WebSharper.Json.Provider
+
+    [<JavaScript>]
+    member this.ClientProviderOrElse p =
+        match this with
+        | Typed | Readable -> p
+        | Custom (_, p) -> p
 
 module private Async =
     let AwaitUnitTask (tsk : System.Threading.Tasks.Task) =
@@ -167,6 +175,7 @@ module Client =
         module Q = WebSharper.Core.Quotations
         module J = WebSharper.Core.JavaScript.Core
         module R = WebSharper.Core.Reflection
+        module JP = WebSharper.Json.Macro
         type BF = System.Reflection.BindingFlags
 
         type M() =
@@ -180,10 +189,21 @@ module Client =
                                 { Generics = g
                                   Entity = R.Method.Parse(typeof<WithEncoding>.GetMethod(m.Name, BF.Static ||| BF.NonPublic))},
                                 Q.DefaultValue s2c :: Q.DefaultValue c2s :: args) with
-                        | J.Call(ns, n, _ :: _ :: args) ->
-                            let enc = WebSharper.Json.Macro.SerializeLambda ignore tr c2s
-                            let dec = WebSharper.Json.Macro.DeserializeLambda ignore tr s2c
-                            J.Call(ns, n, enc :: dec :: args)
+                        | J.Call(ns, n, _ :: _ :: jargs) ->
+                            let param = JP.Parameters.Default tr
+                            let param =
+                                if m.Name.StartsWith "Connect" then
+                                    // endpoint.JsonEncoding.ClientProviderOrElse(provider)
+                                    { param with Provider = J.Call(J.FieldGet(jargs.[0], !~(J.String "JsonEncoding")), !~(J.String "ClientProviderOrElse"), [param.Provider]) }
+                                else
+                                    param
+                            let id = J.Id()
+                            J.Let(id, param.Provider,
+                                let param = { param with Provider = J.Var id }
+                                let enc = JP.SerializeLambda param tr c2s
+                                let dec = JP.DeserializeLambda param tr s2c
+                                J.Call(ns, n, enc :: dec :: jargs)
+                            )
                         | _ -> fail()
                     | _ -> fail()
 
@@ -302,10 +322,10 @@ module Extensions =
         member this.WithWebSocketServer (endpoint: Endpoint<'S2C, 'C2S>, agent : Server.Agent<'S2C, 'C2S>) =
             this.WithInitAction(fun (builder, json, getContext) ->
                 let json =
-                    if endpoint.JsonEncoding = JsonEncoding.Typed then
-                        json
-                    else
-                        WebSharper.Core.Json.Provider.Create()
+                    match endpoint.JsonEncoding with
+                    | JsonEncoding.Typed -> json
+                    | JsonEncoding.Readable -> WebSharper.Core.Json.Provider.Create()
+                    | JsonEncoding.Custom (p, _) -> p
                 let processor =
                     {
                         Agent = agent
