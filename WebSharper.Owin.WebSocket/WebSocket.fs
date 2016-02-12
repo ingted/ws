@@ -264,47 +264,61 @@ type private WebSocketProcessor<'S2C, 'C2S> =
         JsonProvider : Core.Json.Provider
     }
 
-type private ProcessWebSocketConnection<'S2C, 'C2S>
-    (processor : WebSocketProcessor<'S2C, 'C2S>) =
+type private ProcessWebSocketConnection<'S2C, 'C2S> =
+    inherit WebSocketConnection
+    val mutable private post : option<Server.Message<'C2S> -> unit>
+    val private processor : WebSocketProcessor<'S2C, 'C2S>
 
-    inherit WebSocketConnection()
-    let mutable post = None : Option<Server.Message<'C2S> -> unit>
+    new (processor) =
+        { inherit WebSocketConnection()
+          post = None
+          processor = processor }
+
+    new (processor, maxMessageSize) =
+        { inherit WebSocketConnection(maxMessageSize)
+          post = None
+          processor = processor }
 
     override x.OnClose(status, desc) =
-        post |> Option.iter (fun p -> p Server.Close)
+        x.post |> Option.iter (fun p -> p Server.Close)
 
     override x.OnOpen() =
-        let cl = Server.WebSocketClient(x, processor.GetContext, processor.JsonProvider)
-        post <- Some (processor.Agent cl)
+        let cl = Server.WebSocketClient(x, x.processor.GetContext, x.processor.JsonProvider)
+        x.post <- Some (x.processor.Agent cl)
 
     override x.OnMessageReceived(message, typ) =
         async {
             let json = System.Text.Encoding.UTF8.GetString(message.Array)
-            let m = MessageCoder.FromJString processor.JsonProvider json
-            post.Value(Server.Message m)
+            let m = MessageCoder.FromJString x.processor.JsonProvider json
+            x.post.Value(Server.Message m)
         }
         |> Async.StartAsTask :> _
 
     override x.OnReceiveError(ex) =
-        post.Value(Server.Error ex)
+        x.post.Value(Server.Error ex)
 
-type private WebSocketServiceLocator<'S2C, 'C2S>(processor : WebSocketProcessor<'S2C, 'C2S>) =
+type private WebSocketServiceLocator<'S2C, 'C2S>(processor : WebSocketProcessor<'S2C, 'C2S>, maxMessageSize : option<int>) =
     interface IServiceLocator with
 
         member x.GetService(typ) =
             raise <| System.NotImplementedException()
 
         member x.GetInstance(t : System.Type) =
-            let ctor = t.GetConstructor([| processor.GetType() |])
-            ctor.Invoke([| processor |])
+            let ctor =
+                t.GetConstructor [|
+                    yield processor.GetType()
+                    match maxMessageSize with Some _ -> yield typeof<int> | None -> ()
+                |]
+            ctor.Invoke [|
+                yield box processor
+                match maxMessageSize with Some m -> yield box m | None -> ()
+            |]
 
         member x.GetInstance(t, key) =
             raise <| System.NotImplementedException()
 
         member x.GetInstance<'TService>() =
-            let t = typeof<'TService>
-            let ctor = t.GetConstructor([| processor.GetType() |])
-            ctor.Invoke([| processor |]) :?> 'TService
+            (x :> IServiceLocator).GetInstance(typeof<'TService>) :?> 'TService
 
         member x.GetInstance<'TService>(key : string) : 'TService =
             raise <| System.NotImplementedException()
@@ -319,7 +333,7 @@ type private WebSocketServiceLocator<'S2C, 'C2S>(processor : WebSocketProcessor<
 module Extensions =
     type WebSharperOptions<'T when 'T: equality> with
 
-        member this.WithWebSocketServer (endpoint: Endpoint<'S2C, 'C2S>, agent : Server.Agent<'S2C, 'C2S>) =
+        member this.WithWebSocketServer (endpoint: Endpoint<'S2C, 'C2S>, agent : Server.Agent<'S2C, 'C2S>, ?maxMessageSize : int) =
             this.WithInitAction(fun (builder, json, getContext) ->
                 let json =
                     match endpoint.JsonEncoding with
@@ -333,10 +347,11 @@ module Extensions =
                         JsonProvider = json
                     }
                 builder.MapWebSocketRoute<ProcessWebSocketConnection<'S2C, 'C2S>>(
-                    endpoint.Route, WebSocketServiceLocator<'S2C, 'C2S>(processor))
+                    endpoint.Route, WebSocketServiceLocator<'S2C, 'C2S>(processor, maxMessageSize))
             )
 
-        member this.WithWebSocketServer (endpoint: Endpoint<'S2C, 'C2S>, agent : Server.StatefulAgent<'S2C, 'C2S, 'State>) =
-            this.WithWebSocketServer(endpoint, fun client ->
-                (agent client ||> Async.FoldAgent).Post
+        member this.WithWebSocketServer (endpoint: Endpoint<'S2C, 'C2S>, agent : Server.StatefulAgent<'S2C, 'C2S, 'State>, ?maxMessageSize : int) =
+            this.WithWebSocketServer(endpoint,
+                (fun client -> (agent client ||> Async.FoldAgent).Post),
+                ?maxMessageSize = maxMessageSize
             )
