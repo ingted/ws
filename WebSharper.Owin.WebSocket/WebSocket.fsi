@@ -102,6 +102,6 @@ module Extensions =
 
     type WebSharperOptions<'T when 'T: equality> with
         /// Serve websockets on the given endpoint.
-        member WithWebSocketServer : endPoint: Endpoint<'S2C, 'C2S> * agent: Server.Agent<'S2C, 'C2S> * ?maxMessageSize: int -> WebSharperOptions<'T>
+        member WithWebSocketServer : endPoint: Endpoint<'S2C, 'C2S> * agent: Server.Agent<'S2C, 'C2S> * ?maxMessageSize: int * ?onAuth: (Microsoft.Owin.IOwinContext -> bool) -> WebSharperOptions<'T>
         /// Serve websockets on the given endpoint.
-        member WithWebSocketServer : endPoint: Endpoint<'S2C, 'C2S> * agent: Server.StatefulAgent<'S2C, 'C2S, 'State> * ?maxMessageSize: int -> WebSharperOptions<'T>
+        member WithWebSocketServer : endPoint: Endpoint<'S2C, 'C2S> * agent: Server.StatefulAgent<'S2C, 'C2S, 'State> * ?maxMessageSize: int * ?onAuth: (Microsoft.Owin.IOwinContext -> bool) -> WebSharperOptions<'T>

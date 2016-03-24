@@ -262,6 +262,7 @@ type private WebSocketProcessor<'S2C, 'C2S> =
         Agent : Server.Agent<'S2C, 'C2S>
         GetContext : Microsoft.Owin.IOwinContext -> Web.IContext
         JsonProvider : Core.Json.Provider
+        AuthenticateRequest : option<Microsoft.Owin.IOwinContext -> bool>
     }
 
 type private ProcessWebSocketConnection<'S2C, 'C2S> =
@@ -269,12 +270,12 @@ type private ProcessWebSocketConnection<'S2C, 'C2S> =
     val mutable private post : option<Server.Message<'C2S> -> unit>
     val private processor : WebSocketProcessor<'S2C, 'C2S>
 
-    new (processor) =
+    new (processor, onAuth) =
         { inherit WebSocketConnection()
           post = None
           processor = processor }
 
-    new (processor, maxMessageSize) =
+    new (processor, maxMessageSize, onAuth) =
         { inherit WebSocketConnection(maxMessageSize)
           post = None
           processor = processor }
@@ -282,9 +283,17 @@ type private ProcessWebSocketConnection<'S2C, 'C2S> =
     override x.OnClose(status, desc) =
         x.post |> Option.iter (fun p -> p Server.Close)
 
+    override x.AuthenticateRequest(req) =
+        x.processor.AuthenticateRequest |> Option.forall (fun o -> o x.Context)    
+
+    override x.AuthenticateRequestAsync(req) =
+        x.AuthenticateRequest(req)
+        |> System.Threading.Tasks.Task.FromResult 
+
     override x.OnOpen() =
         let cl = Server.WebSocketClient(x, x.processor.GetContext, x.processor.JsonProvider)
         x.post <- Some (x.processor.Agent cl)
+
 
     override x.OnMessageReceived(message, typ) =
         async {
@@ -333,7 +342,7 @@ type private WebSocketServiceLocator<'S2C, 'C2S>(processor : WebSocketProcessor<
 module Extensions =
     type WebSharperOptions<'T when 'T: equality> with
 
-        member this.WithWebSocketServer (endpoint: Endpoint<'S2C, 'C2S>, agent : Server.Agent<'S2C, 'C2S>, ?maxMessageSize : int) =
+        member this.WithWebSocketServer (endpoint: Endpoint<'S2C, 'C2S>, agent : Server.Agent<'S2C, 'C2S>, ?maxMessageSize : int, ?onAuth: Microsoft.Owin.IOwinContext -> bool) =
             this.WithInitAction(fun (builder, json, getContext) ->
                 let json =
                     match endpoint.JsonEncoding with
@@ -345,13 +354,15 @@ module Extensions =
                         Agent = agent
                         GetContext = getContext
                         JsonProvider = json
+                        AuthenticateRequest = onAuth
                     }
                 builder.MapWebSocketRoute<ProcessWebSocketConnection<'S2C, 'C2S>>(
                     endpoint.Route, WebSocketServiceLocator<'S2C, 'C2S>(processor, maxMessageSize))
             )
 
-        member this.WithWebSocketServer (endpoint: Endpoint<'S2C, 'C2S>, agent : Server.StatefulAgent<'S2C, 'C2S, 'State>, ?maxMessageSize : int) =
+        member this.WithWebSocketServer (endpoint: Endpoint<'S2C, 'C2S>, agent : Server.StatefulAgent<'S2C, 'C2S, 'State>, ?maxMessageSize : int, ?onAuth: Microsoft.Owin.IOwinContext -> bool) =
             this.WithWebSocketServer(endpoint,
                 (fun client -> (agent client ||> Async.FoldAgent).Post),
-                ?maxMessageSize = maxMessageSize
+                ?maxMessageSize = maxMessageSize,
+                ?onAuth = onAuth
             )
