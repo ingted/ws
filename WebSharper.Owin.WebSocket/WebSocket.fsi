@@ -64,6 +64,23 @@ module Server =
 
     type StatefulAgent<'S2C, 'C2S, 'State> = WebSocketClient<'S2C, 'C2S> -> 'State * ('State -> Message<'C2S> -> Async<'State>)
 
+    /// Messages received by the server supporting custom server-side messages.
+    [<RequireQualifiedAccess>]
+    type CustomMessage<'C2S, 'Custom> =
+        | Message of 'C2S
+        | Custom of 'Custom
+        | Error of exn
+        | Close
+
+    /// The agent of a WebSocket server that can receive custom server-side messages.
+    [<Class>]
+    type CustomWebSocketAgent<'S2C, 'C2S, 'Custom> =
+        member Client : WebSocketClient<'S2C, 'C2S>
+        member PostCustom : 'Custom -> unit
+
+    type CustomAgent<'S2C, 'C2S, 'Custom, 'State> =
+        CustomWebSocketAgent<'S2C, 'C2S, 'Custom> -> 'State * ('State -> CustomMessage<'C2S, 'Custom> -> Async<'State>)
+
 /// WebSocket client.
 module Client =
 
@@ -105,3 +122,5 @@ module Extensions =
         member WithWebSocketServer : endPoint: Endpoint<'S2C, 'C2S> * agent: Server.Agent<'S2C, 'C2S> * ?maxMessageSize: int * ?onAuth: (Microsoft.Owin.IOwinContext -> bool) -> WebSharperOptions<'T>
         /// Serve websockets on the given endpoint.
         member WithWebSocketServer : endPoint: Endpoint<'S2C, 'C2S> * agent: Server.StatefulAgent<'S2C, 'C2S, 'State> * ?maxMessageSize: int * ?onAuth: (Microsoft.Owin.IOwinContext -> bool) -> WebSharperOptions<'T>
+        /// Serve websockets on the given endpoint.
+        member WithWebSocketServer : endPoint: Endpoint<'S2C, 'C2S> * agent: Server.CustomAgent<'S2C, 'C2S, 'Custom, 'State> * ?maxMessageSize: int * ?onAuth: (Microsoft.Owin.IOwinContext -> bool) -> WebSharperOptions<'T>

@@ -257,6 +257,21 @@ module Server =
 
     type StatefulAgent<'S2C, 'C2S, 'State> = WebSocketClient<'S2C, 'C2S> -> 'State * ('State -> Message<'C2S> -> Async<'State>)
 
+    [<RequireQualifiedAccess>]
+    type CustomMessage<'C2S, 'Custom> =
+        | Message of 'C2S
+        | Custom of 'Custom
+        | Error of exn
+        | Close
+
+    type CustomWebSocketAgent<'S2C, 'C2S, 'Custom>(client: WebSocketClient<'S2C, 'C2S>) =
+        let onCustom = Event<'Custom>()
+        member this.Client = client
+        member this.PostCustom (value: 'Custom) = onCustom.Trigger value
+        member this.OnCustom = onCustom.Publish
+
+    type CustomAgent<'S2C, 'C2S, 'Custom, 'State> = CustomWebSocketAgent<'S2C, 'C2S, 'Custom> -> 'State * ('State -> CustomMessage<'C2S, 'Custom> -> Async<'State>)
+
 type private WebSocketProcessor<'S2C, 'C2S> =
     {
         Agent : Server.Agent<'S2C, 'C2S>
@@ -363,6 +378,21 @@ module Extensions =
         member this.WithWebSocketServer (endpoint: Endpoint<'S2C, 'C2S>, agent : Server.StatefulAgent<'S2C, 'C2S, 'State>, ?maxMessageSize : int, ?onAuth: Microsoft.Owin.IOwinContext -> bool) =
             this.WithWebSocketServer(endpoint,
                 (fun client -> (agent client ||> Async.FoldAgent).Post),
+                ?maxMessageSize = maxMessageSize,
+                ?onAuth = onAuth
+            )
+
+        member this.WithWebSocketServer (endpoint: Endpoint<'S2C, 'C2S>, agent : Server.CustomAgent<'S2C, 'C2S, 'Custom, 'State>, ?maxMessageSize : int, ?onAuth: Microsoft.Owin.IOwinContext -> bool) =
+            this.WithWebSocketServer(endpoint,
+                (fun client ->
+                    let client = Server.CustomWebSocketAgent(client)
+                    let agent = agent client ||> Async.FoldAgent
+                    client.OnCustom.Add (Server.CustomMessage.Custom >> agent.Post)
+                    function
+                    | Server.Close -> agent.Post Server.CustomMessage.Close
+                    | Server.Error e -> agent.Post (Server.CustomMessage.Error e)
+                    | Server.Message m -> agent.Post (Server.CustomMessage.Message m)
+                ),
                 ?maxMessageSize = maxMessageSize,
                 ?onAuth = onAuth
             )
