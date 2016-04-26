@@ -377,7 +377,17 @@ module Extensions =
 
         member this.WithWebSocketServer (endpoint: Endpoint<'S2C, 'C2S>, agent : Server.StatefulAgent<'S2C, 'C2S, 'State>, ?maxMessageSize : int, ?onAuth: Microsoft.Owin.IOwinContext -> bool) =
             this.WithWebSocketServer(endpoint,
-                (fun client -> (agent client ||> Async.FoldAgent).Post),
+                (fun client ->
+                    let initState, receive = agent client
+                    let receive state msg =
+                        async {
+                            try return! receive state msg
+                            with exn ->
+                                try return! receive state (Server.Error exn)
+                                with exn -> return state
+                        }
+                    let agent = Async.FoldAgent initState receive
+                    agent.Post),
                 ?maxMessageSize = maxMessageSize,
                 ?onAuth = onAuth
             )
@@ -386,7 +396,15 @@ module Extensions =
             this.WithWebSocketServer(endpoint,
                 (fun client ->
                     let client = Server.CustomWebSocketAgent(client)
-                    let agent = agent client ||> Async.FoldAgent
+                    let initState, receive = agent client
+                    let receive state msg =
+                        async {
+                            try return! receive state msg
+                            with exn ->
+                                try return! receive state (Server.CustomMessage.Error exn)
+                                with exn -> return state
+                        }
+                    let agent = Async.FoldAgent initState receive
                     client.OnCustom.Add (Server.CustomMessage.Custom >> agent.Post)
                     function
                     | Server.Close -> agent.Post Server.CustomMessage.Close
