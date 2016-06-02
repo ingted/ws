@@ -4,12 +4,12 @@ module Server =
     open WebSharper
     open WebSharper.Owin.WebSocket.Server
 
-    type [<NamedUnionCases>]
+    type [<JavaScript; NamedUnionCases>]
         C2SMessage =
         | Request1 of str: string
         | Request2 of int: int
     
-    and [<NamedUnionCases "type">]
+    and [<JavaScript; NamedUnionCases "type">]
         S2CMessage =
         | [<CompiledName "int">] Response2 of value: int
         | [<CompiledName "string">] Response1 of value: string

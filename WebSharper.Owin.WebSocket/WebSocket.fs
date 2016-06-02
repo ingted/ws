@@ -9,7 +9,7 @@ open WebSharper
 open WebSharper.Owin
 open Microsoft.Practices.ServiceLocation
 
-[<RequireQualifiedAccess>]
+[<JavaScript; RequireQualifiedAccess>]
 type JsonEncoding =
     | Typed
     | Readable
@@ -36,6 +36,9 @@ module private Async =
             loop initState
         )
 
+#if ZAFIR
+[<JavaScript>]
+#endif
 type Endpoint<'S2C, 'C2S> =
     private {
         // the uri of the websocket server
@@ -54,6 +57,9 @@ type Endpoint<'S2C, 'C2S> =
             JsonEncoding = defaultArg encoding JsonEncoding.Typed
         } : Endpoint<'S2C, 'C2S>
 
+    #if ZAFIR
+    [<JavaScript(false)>]
+    #endif
     static member Create (url : string, route : string, ?encoding: JsonEncoding) =
         let uri = System.Uri(System.Uri(url), route)
         let wsuri = sprintf "ws://%s%s" uri.Authority uri.AbsolutePath
@@ -63,6 +69,9 @@ type Endpoint<'S2C, 'C2S> =
             JsonEncoding = defaultArg encoding JsonEncoding.Typed
         } : Endpoint<'S2C, 'C2S>
 
+    #if ZAFIR
+    [<JavaScript(false)>]
+    #endif
     static member Create (app: IAppBuilder, route: string, ?encoding: JsonEncoding) =
         let addr = (app.Properties.["host.Addresses"] :?> List<IDictionary<string,obj>>).[0]
         let wsuri =
@@ -97,6 +106,7 @@ type Action<'T> =
 module Client =
     open WebSharper.JavaScript
 
+    [<JavaScript>]
     type Message<'S2C> =
         | Message of 'S2C
         | Error
@@ -170,6 +180,7 @@ module Client =
             let socket = new WebSocket(endpoint.URI)
             WithEncoding.FromWebSocket encode decode socket agent endpoint.JsonEncoding
 
+#if !ZAFIR
     module internal Macro =
         open WebSharper.Core.Macros
         module Q = WebSharper.Core.Quotations
@@ -206,24 +217,41 @@ module Client =
                             )
                         | _ -> fail()
                     | _ -> fail()
+#endif
 
+#if ZAFIR
+    [<JavaScript; Inline>]
+#else
     [<Macro(typeof<Macro.M>)>]
+#endif
     let FromWebSocket<'S2C, 'C2S> (socket: WebSocket) (agent: Agent<'S2C, 'C2S>) jsonEncoding =
-        WithEncoding.FromWebSocket Unchecked.defaultof<_> Unchecked.defaultof<_> socket agent jsonEncoding
+        WithEncoding.FromWebSocket Json.Serialize Json.Deserialize socket agent jsonEncoding
 
+#if ZAFIR
+    [<JavaScript; Inline>]
+#else
     [<Macro(typeof<Macro.M>); JavaScript>]
+#endif
     let FromWebSocketStateful<'S2C, 'C2S, 'State> (socket: WebSocket) (agent: StatefulAgent<'S2C, 'C2S, 'State>) jsonEncoding =
         let x = Async.FoldAgent () (fun () -> async.Return)
-        WithEncoding.FromWebSocketStateful Unchecked.defaultof<_> Unchecked.defaultof<_> socket agent jsonEncoding
+        WithEncoding.FromWebSocketStateful Json.Serialize Json.Deserialize socket agent jsonEncoding
 
+#if ZAFIR
+    [<JavaScript; Inline>]
+#else
     [<Macro(typeof<Macro.M>)>]
+#endif
     let Connect<'S2C, 'C2S> (endpoint: Endpoint<'S2C, 'C2S>) (agent: Agent<'S2C, 'C2S>) =
-        WithEncoding.Connect Unchecked.defaultof<_> Unchecked.defaultof<_> endpoint agent
+        WithEncoding.Connect Json.Serialize Json.Deserialize endpoint agent
 
+#if ZAFIR
+    [<JavaScript; Inline>]
+#else
     [<Macro(typeof<Macro.M>); JavaScript>]
+#endif
     let ConnectStateful<'S2C, 'C2S, 'State> (endpoint: Endpoint<'S2C, 'C2S>) (agent: StatefulAgent<'S2C, 'C2S, 'State>) =
         let x = Async.FoldAgent () (fun () -> async.Return)
-        WithEncoding.ConnectStateful Unchecked.defaultof<_> Unchecked.defaultof<_> endpoint agent
+        WithEncoding.ConnectStateful Json.Serialize Json.Deserialize endpoint agent
 
 module Server =
     type Message<'C2S> =
