@@ -9,7 +9,7 @@ open WebSharper
 open WebSharper.Owin
 open Microsoft.Practices.ServiceLocation
 
-[<JavaScript; RequireQualifiedAccess>]
+[<RequireQualifiedAccess>]
 type JsonEncoding =
     | Typed
     | Readable
@@ -36,9 +36,6 @@ module private Async =
             loop initState
         )
 
-#if ZAFIR
-[<JavaScript>]
-#endif
 type Endpoint<'S2C, 'C2S> =
     private {
         // the uri of the websocket server
@@ -57,9 +54,6 @@ type Endpoint<'S2C, 'C2S> =
             JsonEncoding = defaultArg encoding JsonEncoding.Typed
         } : Endpoint<'S2C, 'C2S>
 
-    #if ZAFIR
-    [<JavaScript(false)>]
-    #endif
     static member Create (url : string, route : string, ?encoding: JsonEncoding) =
         let uri = System.Uri(System.Uri(url), route)
         let wsuri = sprintf "ws://%s%s" uri.Authority uri.AbsolutePath
@@ -69,9 +63,6 @@ type Endpoint<'S2C, 'C2S> =
             JsonEncoding = defaultArg encoding JsonEncoding.Typed
         } : Endpoint<'S2C, 'C2S>
 
-    #if ZAFIR
-    [<JavaScript(false)>]
-    #endif
     static member Create (app: IAppBuilder, route: string, ?encoding: JsonEncoding) =
         let addr = (app.Properties.["host.Addresses"] :?> List<IDictionary<string,obj>>).[0]
         let wsuri =
