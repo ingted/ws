@@ -11,8 +11,8 @@ module Server =
     
     and [<JavaScript; NamedUnionCases "type">]
         S2CMessage =
-        | [<CompiledName "int">] Response2 of value: int
-        | [<CompiledName "string">] Response1 of value: string
+        | [<Name "int">] Response2 of value: int
+        | [<Name "string">] Response1 of value: string
 
     let Start route : StatefulAgent<S2CMessage, C2SMessage, int> =
         /// print to debug output and stdout

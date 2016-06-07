@@ -308,12 +308,12 @@ type private ProcessWebSocketConnection<'S2C, 'C2S> =
     val mutable private post : option<Server.Message<'C2S> -> unit>
     val private processor : WebSocketProcessor<'S2C, 'C2S>
 
-    new (processor, onAuth) =
+    new (processor) =
         { inherit WebSocketConnection()
           post = None
           processor = processor }
 
-    new (processor, maxMessageSize, onAuth) =
+    new (processor, maxMessageSize) =
         { inherit WebSocketConnection(maxMessageSize)
           post = None
           processor = processor }

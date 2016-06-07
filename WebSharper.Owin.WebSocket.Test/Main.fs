@@ -66,7 +66,8 @@ module SelfHostedServer =
                     .UseWebSharper(
                         WebSharperOptions(
                             ServerRootDirectory = rootDirectory,
-                            Sitelet = Some (Site.MainSitelet ep))
+                            Sitelet = Some (Site.MainSitelet ep),
+                            Debug = true)
                             .WithWebSocketServer(ep, Server.Start ep))
                 |> ignore)
             stdout.WriteLine("Serving {0}", url)
