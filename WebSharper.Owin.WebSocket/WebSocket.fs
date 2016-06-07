@@ -224,7 +224,9 @@ module Client =
     [<Macro(typeof<Macro.M>); JavaScript>]
 #endif
     let FromWebSocketStateful<'S2C, 'C2S, 'State> (socket: WebSocket) (agent: StatefulAgent<'S2C, 'C2S, 'State>) jsonEncoding =
+#if !ZAFIR
         let x = Async.FoldAgent () (fun () -> async.Return)
+#endif
         WithEncoding.FromWebSocketStateful Json.Serialize Json.Deserialize socket agent jsonEncoding
 
 #if ZAFIR
@@ -241,7 +243,9 @@ module Client =
     [<Macro(typeof<Macro.M>); JavaScript>]
 #endif
     let ConnectStateful<'S2C, 'C2S, 'State> (endpoint: Endpoint<'S2C, 'C2S>) (agent: StatefulAgent<'S2C, 'C2S, 'State>) =
+#if !ZAFIR
         let x = Async.FoldAgent () (fun () -> async.Return)
+#endif
         WithEncoding.ConnectStateful Json.Serialize Json.Deserialize endpoint agent
 
 module Server =
