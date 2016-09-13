@@ -17,6 +17,7 @@ let MPServiceLocation =
 let main =
     bt.Zafir.Library("WebSharper.Owin.WebSocket")
         .SourcesFromProject()
+        .WithSourceMap()
         .References(fun r ->
             [
                 r.NuGet("Owin").ForceFoundVersion().Reference()
@@ -32,6 +33,7 @@ let main =
 let test =
     bt.Zafir.Executable("WebSharper.Owin.WebSocket.Test")
         .SourcesFromProject()
+        .WithSourceMap()
         .References(fun r ->
             [
                 r.NuGet("Owin").Reference().CopyLocal()
