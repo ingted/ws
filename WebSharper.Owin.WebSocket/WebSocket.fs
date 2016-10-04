@@ -13,13 +13,19 @@ open Microsoft.Practices.ServiceLocation
 type JsonEncoding =
     | Typed
     | Readable
+#if ZAFIR
+#else
     | Custom of WebSharper.Core.Json.Provider * WebSharper.Json.Provider
+#endif
 
     [<JavaScript>]
     member this.ClientProviderOrElse p =
         match this with
         | Typed | Readable -> p
+#if ZAFIR
+#else
         | Custom (_, p) -> p
+#endif
 
 module private Async =
     let AwaitUnitTask (tsk : System.Threading.Tasks.Task) =
@@ -386,7 +392,10 @@ module Extensions =
                     match endpoint.JsonEncoding with
                     | JsonEncoding.Typed -> json
                     | JsonEncoding.Readable -> WebSharper.Core.Json.Provider.Create()
+#if ZAFIR
+#else
                     | JsonEncoding.Custom (p, _) -> p
+#endif
                 let processor =
                     {
                         Agent = agent

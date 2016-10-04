@@ -12,7 +12,10 @@ type JsonEncoding =
     /// and by the WebSharper.Json.Serialize family of functions.
     | Readable
     /// Use the given server-side and client-side JSON encoding providers.
+#if ZAFIR
+#else
     | Custom of WebSharper.Core.Json.Provider * WebSharper.Json.Provider
+#endif
 
 /// A WebSockets endpoint.
 [<Sealed>]
