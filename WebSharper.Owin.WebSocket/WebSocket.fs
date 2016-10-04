@@ -94,16 +94,17 @@ type Action<'T> =
     | Message of 'T
     | Close
 
-[<JavaScript>]
 module Client =
     open WebSharper.JavaScript
 
+    [<JavaScript>]
     type Message<'S2C> =
         | Message of 'S2C
         | Error
         | Open
         | Close
 
+    [<JavaScript>]
     type WebSocketServer<'S2C, 'C2S>(conn: WebSocket, encode: 'C2S -> string) =
         member this.Connection = conn
         member this.Post (msg: 'C2S) = msg |> encode |> conn.Send
@@ -112,6 +113,7 @@ module Client =
 
     type StatefulAgent<'S2C, 'C2S, 'State> = WebSocketServer<'S2C, 'C2S> -> Async<'State * ('State -> Message<'S2C> -> Async<'State>)>
 
+    [<JavaScript>]
     let cacheSocket (socket: WebSocket) decode =
         let cache = Queue()
         let isOpen = ref false
@@ -123,6 +125,7 @@ module Client =
             Seq.iter post cache
             !isOpen
 
+    [<JavaScript>]
     let getEncoding (encode: 'C2S -> string) (decode: string -> 'S2C) (jsonEncoding: JsonEncoding) =
         let encode, decode =
             match jsonEncoding with
