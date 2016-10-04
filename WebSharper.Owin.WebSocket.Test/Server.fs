@@ -22,9 +22,9 @@ module Server =
                 stdout.WriteLine s
             ) x
 
-        fun client ->
+        fun client -> async {
             let clientIp = client.Connection.Context.Request.RemoteIpAddress
-            0, fun state msg -> async {
+            return 0, fun state msg -> async {
                 eprintfn "Received message #%i from %s" state clientIp
                 match msg with
                 | Message data -> 
@@ -39,3 +39,4 @@ module Server =
                     eprintfn "Closed connection to %s" clientIp
                     return state
             }
+        }
