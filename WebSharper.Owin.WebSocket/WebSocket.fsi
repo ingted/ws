@@ -63,9 +63,9 @@ module Server =
         member PostAsync : 'S2C -> Async<unit>
         member Post : 'S2C -> unit
 
-    type Agent<'S2C, 'C2S> = WebSocketClient<'S2C, 'C2S> -> Message<'C2S> -> unit
+    type Agent<'S2C, 'C2S> = WebSocketClient<'S2C, 'C2S> -> Async<Message<'C2S> -> unit>
 
-    type StatefulAgent<'S2C, 'C2S, 'State> = WebSocketClient<'S2C, 'C2S> -> 'State * ('State -> Message<'C2S> -> Async<'State>)
+    type StatefulAgent<'S2C, 'C2S, 'State> = WebSocketClient<'S2C, 'C2S> -> Async<'State * ('State -> Message<'C2S> -> Async<'State>)>
 
     /// Messages received by the server supporting custom server-side messages.
     [<RequireQualifiedAccess>]
@@ -82,7 +82,7 @@ module Server =
         member PostCustom : 'Custom -> unit
 
     type CustomAgent<'S2C, 'C2S, 'Custom, 'State> =
-        CustomWebSocketAgent<'S2C, 'C2S, 'Custom> -> 'State * ('State -> CustomMessage<'C2S, 'Custom> -> Async<'State>)
+        CustomWebSocketAgent<'S2C, 'C2S, 'Custom> -> Async<'State * ('State -> CustomMessage<'C2S, 'Custom> -> Async<'State>)>
 
 /// WebSocket client.
 module Client =
@@ -100,9 +100,9 @@ module Client =
         member Connection : WebSharper.JavaScript.WebSocket
         member Post : 'C2S -> unit
 
-    type Agent<'S2C, 'C2S> = WebSocketServer<'S2C, 'C2S> -> Message<'S2C> -> unit
+    type Agent<'S2C, 'C2S> = WebSocketServer<'S2C, 'C2S> -> Async<Message<'S2C> -> unit>
 
-    type StatefulAgent<'S2C, 'C2S, 'State> = WebSocketServer<'S2C, 'C2S> -> 'State * ('State -> Message<'S2C> -> Async<'State>)
+    type StatefulAgent<'S2C, 'C2S, 'State> = WebSocketServer<'S2C, 'C2S> -> Async<'State * ('State -> Message<'S2C> -> Async<'State>)>
 
     /// Connect to a websocket server.
     val FromWebSocket : ws: WebSharper.JavaScript.WebSocket -> agent: Agent<'S2C, 'C2S> -> JsonEncoding -> Async<WebSocketServer<'S2C, 'C2S>>

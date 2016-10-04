@@ -12,8 +12,8 @@ module Client =
     let WS (endpoint : Endpoint<Server.S2CMessage, Server.C2SMessage>) =
         async {
             let! server =
-                ConnectStateful endpoint <| fun server ->
-                    0, fun state msg -> async {
+                ConnectStateful endpoint <| fun server -> async {
+                    return 0, fun state msg -> async {
                         match msg with
                         | Message data ->
                             match data with
@@ -30,6 +30,7 @@ module Client =
                             Console.Log "WebSocket connection error!"
                             return state
                     }
+                }
             
             while true do
                 do! Async.Sleep 1000
