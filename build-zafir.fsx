@@ -5,7 +5,7 @@ open IntelliFactory.Build
 let bt =
     BuildTool().PackageId("Zafir.Owin.WebSocket")
         .VersionFrom("Zafir")
-        .WithFSharpVersion(FSharpVersion.FSharp30)
+        .WithFSharpVersion(FSharpVersion.FSharp31)
         .WithFramework(fun fw -> fw.Net45)
 
 open System.IO
@@ -17,7 +17,6 @@ let MPServiceLocation =
 let main =
     bt.Zafir.Library("WebSharper.Owin.WebSocket")
         .SourcesFromProject()
-        .WithSourceMap()
         .References(fun r ->
             [
                 r.NuGet("Owin").ForceFoundVersion().Reference()
@@ -33,7 +32,6 @@ let main =
 let test =
     bt.Zafir.Executable("WebSharper.Owin.WebSocket.Test")
         .SourcesFromProject()
-        .WithSourceMap()
         .References(fun r ->
             [
                 r.NuGet("Owin").Reference().CopyLocal()

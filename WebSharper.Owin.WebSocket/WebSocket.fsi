@@ -1,5 +1,7 @@
 ﻿namespace WebSharper.Owin.WebSocket
 
+open System.Runtime.CompilerServices
+
 /// Which JSON encoding to use when sending messages through the websocket.
 [<RequireQualifiedAccess>]
 type JsonEncoding =
@@ -116,14 +118,84 @@ module Client =
     /// Connect to a websocket server.
     val ConnectStateful : endpoint: Endpoint<'S2C, 'C2S> -> agent: StatefulAgent<'S2C, 'C2S, 'State> -> Async<WebSocketServer<'S2C, 'C2S>>
 
-[<AutoOpen>]
-module Extensions =
-    open WebSharper.Owin
+type private Env = System.Collections.Generic.IDictionary<string, obj>
+type private AppFunc = System.Func<Env, System.Threading.Tasks.Task>
+type private MidFunc = System.Func<AppFunc, AppFunc>
 
-    type WebSharperOptions<'T when 'T: equality> with
-        /// Serve websockets on the given endpoint.
-        member WithWebSocketServer : endPoint: Endpoint<'S2C, 'C2S> * agent: Server.Agent<'S2C, 'C2S> * ?maxMessageSize: int * ?onAuth: (Microsoft.Owin.IOwinContext -> bool) -> WebSharperOptions<'T>
-        /// Serve websockets on the given endpoint.
-        member WithWebSocketServer : endPoint: Endpoint<'S2C, 'C2S> * agent: Server.StatefulAgent<'S2C, 'C2S, 'State> * ?maxMessageSize: int * ?onAuth: (Microsoft.Owin.IOwinContext -> bool) -> WebSharperOptions<'T>
-        /// Serve websockets on the given endpoint.
-        member WithWebSocketServer : endPoint: Endpoint<'S2C, 'C2S> * agent: Server.CustomAgent<'S2C, 'C2S, 'Custom, 'State> * ?maxMessageSize: int * ?onAuth: (Microsoft.Owin.IOwinContext -> bool) -> WebSharperOptions<'T>
+/// The OWIN middleware for WebSharper WebSockets.
+/// Must be located after the WebSharper Sitelets or Remoting middleware in the pipeline.
+type WebSharperWebSocketMiddleware<'S2C, 'C2S> =
+
+    new : next: AppFunc
+        * endpoint: Endpoint<'S2C, 'C2S>
+        * agent: Server.Agent<'S2C, 'C2S>
+        * ?maxMessageSize: int
+        * ?onAuth: (Env -> bool)
+        -> WebSharperWebSocketMiddleware<'S2C, 'C2S>
+
+    static member AsMidFunc
+        : endpoint: Endpoint<'S2C, 'C2S>
+        * agent: Server.Agent<'S2C, 'C2S>
+        * ?maxMessageSize: int
+        * ?onAuth: (Env -> bool)
+        -> MidFunc
+
+    static member Stateful<'State>
+        : next: AppFunc
+        * endpoint: Endpoint<'S2C, 'C2S>
+        * agent: Server.StatefulAgent<'S2C, 'C2S, 'State>
+        * ?maxMessageSize: int
+        * ?onAuth: (Env -> bool)
+        -> WebSharperWebSocketMiddleware<'S2C, 'C2S>
+
+    static member AsMidFunc<'State>
+        : endpoint: Endpoint<'S2C, 'C2S>
+        * agent: Server.StatefulAgent<'S2C, 'C2S, 'State>
+        * ?maxMessageSize: int
+        * ?onAuth: (Env -> bool)
+        -> MidFunc
+
+    static member Custom<'Custom, 'State>
+        : next: AppFunc
+        * endpoint: Endpoint<'S2C, 'C2S>
+        * agent: Server.CustomAgent<'S2C, 'C2S, 'Custom, 'State>
+        * ?maxMessageSize: int
+        * ?onAuth: (Env -> bool)
+        -> WebSharperWebSocketMiddleware<'S2C, 'C2S>
+
+    static member AsMidFunc<'Custom, 'State>
+        : endpoint: Endpoint<'S2C, 'C2S>
+        * agent: Server.CustomAgent<'S2C, 'C2S, 'Custom, 'State>
+        * ?maxMessageSize: int
+        * ?onAuth: (Env -> bool)
+        -> MidFunc
+
+[<Extension; Sealed>]
+type Extensions =
+
+    [<Extension>]
+    static member UseWebSocket
+        : this: Owin.IAppBuilder
+        * endpoint: Endpoint<'S2C, 'C2S>
+        * agent: Server.Agent<'S2C, 'C2S>
+        * ?maxMessageSize: int
+        * ?onAuth: (Env -> bool)
+        -> Owin.IAppBuilder
+
+    [<Extension>]
+    static member UseWebSocket
+        : this: Owin.IAppBuilder
+        * endpoint: Endpoint<'S2C, 'C2S>
+        * agent: Server.StatefulAgent<'S2C, 'C2S, 'State>
+        * ?maxMessageSize: int
+        * ?onAuth: (Env -> bool)
+        -> Owin.IAppBuilder
+
+    [<Extension>]
+    static member UseWebSocket
+        : this: Owin.IAppBuilder
+        * endpoint: Endpoint<'S2C, 'C2S>
+        * agent: Server.CustomAgent<'S2C, 'C2S, 'Custom, 'State>
+        * ?maxMessageSize: int
+        * ?onAuth: (Env -> bool)
+        -> Owin.IAppBuilder
