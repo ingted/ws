@@ -22,7 +22,7 @@ let main =
             [
                 r.NuGet("Owin").ForceFoundVersion().Reference()
                 r.NuGet("Microsoft.Owin").ForceFoundVersion().Reference()
-                r.NuGet("Owin.WebSocket").Version("1.6.0").ForceFoundVersion().Reference()
+                r.NuGet("Owin.WebSocket").Version("1.6.0").Reference()
                 r.NuGet("CommonServiceLocator").ForceFoundVersion().Reference()
                 r.NuGet("Zafir.Owin").Latest(true).ForceFoundVersion().Reference()
                 r.File(MPServiceLocation)
