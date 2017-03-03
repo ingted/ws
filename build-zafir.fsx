@@ -22,7 +22,7 @@ let main =
             [
                 r.NuGet("Owin").ForceFoundVersion().Reference()
                 r.NuGet("Microsoft.Owin").ForceFoundVersion().Reference()
-                r.NuGet("Owin.WebSocket").ForceFoundVersion().Reference()
+                r.NuGet("Owin.WebSocket").Version("1.6.0").ForceFoundVersion().Reference()
                 r.NuGet("CommonServiceLocator").ForceFoundVersion().Reference()
                 r.NuGet("Zafir.Owin").Latest(true).ForceFoundVersion().Reference()
                 r.File(MPServiceLocation)
@@ -38,7 +38,7 @@ let test =
             [
                 r.NuGet("Owin").Reference().CopyLocal()
                 r.NuGet("Microsoft.Owin").Reference().CopyLocal()
-                r.NuGet("Owin.WebSocket").Reference().CopyLocal()
+                r.NuGet("Owin.WebSocket").Version("1.6.0").Reference().CopyLocal()
                 r.NuGet("Zafir.Html").Latest(true).Reference().CopyLocal()
                 r.NuGet("Zafir.Owin").Latest(true).Reference().CopyLocal()
                 r.NuGet("Microsoft.Owin.Hosting").Reference().CopyLocal()
