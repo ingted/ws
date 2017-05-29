@@ -44,7 +44,6 @@ let test =
                 r.NuGet("Microsoft.Owin.FileSystems").Reference().CopyLocal()
                 r.NuGet("Microsoft.Owin.Host.HttpListener").Reference().CopyLocal()
                 r.NuGet("Microsoft.Owin.Diagnostics").Reference().CopyLocal()
-                r.NuGet("Mono.Cecil").Reference().CopyLocal()
                 r.Project(main).CopyLocal()
                 r.File(MPServiceLocation).CopyLocal()
                 r.Assembly("System.Configuration")
