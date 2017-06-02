@@ -19,6 +19,12 @@ type JsonEncoding =
     | Custom of WebSharper.Core.Json.Provider * WebSharper.Json.Provider
 #endif
 
+#if ZAFIR
+type private Context = WebSharper.Web.Context
+#else
+type private Context = WebSharper.Web.IContext
+#endif
+
 /// A WebSockets endpoint.
 [<Sealed>]
 type Endpoint<'S2C, 'C2S> =
@@ -61,7 +67,7 @@ module Server =
     type WebSocketClient<'S2C, 'C2S> =
         member JsonProvider : WebSharper.Core.Json.Provider
         member Connection : WebSocketConnection
-        member Context : WebSharper.Web.IContext
+        member Context : Context
         member PostAsync : 'S2C -> Async<unit>
         member Post : 'S2C -> unit
 

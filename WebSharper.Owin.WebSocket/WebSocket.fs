@@ -30,6 +30,12 @@ type JsonEncoding =
         | Custom (_, p) -> p
 #endif
 
+#if ZAFIR
+type private Context = WebSharper.Web.Context
+#else
+type private Context = WebSharper.Web.IContext
+#endif
+
 module private Async =
     let AwaitUnitTask (tsk : System.Threading.Tasks.Task) =
         tsk.ContinueWith(ignore) |> Async.AwaitTask
@@ -295,7 +301,7 @@ module Server =
 
         member this.JsonProvider = jP
         member this.Connection = conn
-        member this.Context : WebSharper.Web.IContext = ctx
+        member this.Context : Context = ctx
         member this.PostAsync (value: 'S2C) =
             let msg = MessageCoder.ToJString jP value
             let bytes = System.Text.Encoding.UTF8.GetBytes(msg)
@@ -331,7 +337,7 @@ module Server =
 type private WebSocketProcessor<'S2C, 'C2S> =
     {
         Agent : Server.Agent<'S2C, 'C2S>
-        GetContext : Env -> Web.IContext
+        GetContext : Env -> Context
         JsonProvider : Core.Json.Provider
         AuthenticateRequest : option<Env -> bool>
     }
