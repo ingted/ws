@@ -60,15 +60,16 @@ module SelfHostedServer =
                     System.IO.Path.Combine(
                         System.IO.Directory.GetCurrentDirectory(),
                         rootDirectory)
-                appB.UseStaticFiles(
-                        StaticFileOptions(
-                            FileSystem = PhysicalFileSystem(rootDirectory)))
-                    .UseWebSharper(
+                // Put WebSocket before StaticFiles for the #4 regression test
+                appB.UseWebSharper(
                         WebSharperOptions(
                             ServerRootDirectory = rootDirectory,
                             Sitelet = Some (Site.MainSitelet ep),
                             Debug = true))
                     .UseWebSocket(ep, Server.Start ep)
+                    .UseStaticFiles(
+                        StaticFileOptions(
+                            FileSystem = PhysicalFileSystem(rootDirectory)))
                 |> ignore)
             stdout.WriteLine("Serving {0}", url)
             stdin.ReadLine() |> ignore

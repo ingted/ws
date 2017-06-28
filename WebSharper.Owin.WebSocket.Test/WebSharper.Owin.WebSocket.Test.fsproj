@@ -63,6 +63,7 @@
     <Compile Include="Server.fs" />
     <Compile Include="Client.fs" />
     <Compile Include="Main.fs" />
+    <Content Include="ws.txt" />
     <Content Include="Main.html" />
     <Content Include="App.config" />
   </ItemGroup>

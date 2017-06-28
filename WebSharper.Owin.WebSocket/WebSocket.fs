@@ -441,12 +441,17 @@ type WebSharperWebSocketMiddleware<'S2C, 'C2S>(next: AppFunc, endpoint: Endpoint
             AuthenticateRequest = onAuth
         }
     let m =
+        let ep =
+            sprintf "^%s%s$"
+                (if endpoint.Route.StartsWith "/" then "" else "/")
+                (Regex.Escape(endpoint.Route))
+            |> Regex
         new Owin.WebSocket.WebSocketConnectionMiddleware<ProcessWebSocketConnection<'S2C, 'C2S>>(
             // Owin.WebSocket 1.7 doesn't support null next middleware.
             // The following can be replaced with just `null` once this is merged:
             // https://github.com/bryceg/Owin.WebSocket/pull/28
             { new Microsoft.Owin.OwinMiddleware(null) with member this.Invoke(a) = next.Invoke(a.Environment) },
-            WebSocketServiceLocator<'S2C, 'C2S>(processor, maxMessageSize), Regex(Regex.Escape(endpoint.Route)))
+            WebSocketServiceLocator<'S2C, 'C2S>(processor, maxMessageSize), ep)
 
     member this.Invoke(env: Env) =
         let ctx = Microsoft.Owin.OwinContext(env)
