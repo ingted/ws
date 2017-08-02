@@ -51,6 +51,11 @@ module private Async =
             loop initState
         )
 
+module private Helpers =
+    let getScheme scheme =
+            if scheme = "https" || scheme = "wss" then "wss"
+            else "ws"
+
 type Endpoint<'S2C, 'C2S> =
     private {
         // the uri of the websocket server
@@ -71,7 +76,8 @@ type Endpoint<'S2C, 'C2S> =
 
     static member Create (url : string, route : string, ?encoding: JsonEncoding) =
         let uri = System.Uri(System.Uri(url), route)
-        let wsuri = sprintf "ws://%s%s" uri.Authority uri.AbsolutePath
+        let scheme = Helpers.getScheme uri.Scheme
+        let wsuri = sprintf "%s://%s%s" scheme uri.Authority uri.AbsolutePath
         {
             URI = wsuri
             Route = route
@@ -81,10 +87,11 @@ type Endpoint<'S2C, 'C2S> =
     static member Create (app: IAppBuilder, route: string, ?encoding: JsonEncoding) =
         let addr = (app.Properties.["host.Addresses"] :?> List<IDictionary<string,obj>>).[0]
         let wsuri =
+            let scheme = Helpers.getScheme <| (addr.["scheme"] :?> string)
             let host = addr.["host"] :?> string
             let port = addr.["port"] :?> string
             let path = addr.["path"] :?> string
-            "ws://" + host + ":" + port + path
+            scheme + host + ":" + port + path
         {
             URI = wsuri
             Route = route
