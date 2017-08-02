@@ -91,7 +91,7 @@ type Endpoint<'S2C, 'C2S> =
             let host = addr.["host"] :?> string
             let port = addr.["port"] :?> string
             let path = addr.["path"] :?> string
-            scheme + host + ":" + port + path
+            scheme + "://" + host + ":" + port + path
         {
             URI = wsuri
             Route = route
