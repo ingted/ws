@@ -39,6 +39,7 @@ type Endpoint<'S2C, 'C2S> =
 
     /// Create a websockets endpoint for a given Owin app and path.
     /// Call this on the server side and pass it down to the client.
+    /// This overload only works when the site is hosted on ASP.NET using Microsoft.Owin.Host.SystemWeb.
     static member Create
         : Owin.IAppBuilder
         * route: string
