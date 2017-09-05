@@ -4,7 +4,7 @@ open IntelliFactory.Build
 
 let bt =
     BuildTool().PackageId("WebSharper.Owin.WebSocket")
-        .VersionFrom("WebSharper")
+        .VersionFrom("WebSharper", versionSpec = "(,4.0)")
         .WithFSharpVersion(FSharpVersion.FSharp30)
         .WithFramework(fun fw -> fw.Net45)
 
@@ -23,7 +23,7 @@ let main =
                 r.NuGet("Microsoft.Owin").ForceFoundVersion().Reference()
                 r.NuGet("Owin.WebSocket").ForceFoundVersion().Reference()
                 r.NuGet("CommonServiceLocator").ForceFoundVersion().Reference()
-                r.NuGet("WebSharper.Owin").ForceFoundVersion().Reference()
+                r.NuGet("WebSharper.Owin").Version("(,4.0)").ForceFoundVersion().Reference()
                 r.File(MPServiceLocation)
                 r.Assembly("System.Configuration")
                 r.Assembly "System.Web"
@@ -37,8 +37,8 @@ let test =
                 r.NuGet("Owin").Reference().CopyLocal()
                 r.NuGet("Microsoft.Owin").Reference().CopyLocal()
                 r.NuGet("Owin.WebSocket").Reference().CopyLocal()
-                r.NuGet("WebSharper.Html").Reference().CopyLocal()
-                r.NuGet("WebSharper.Owin").Reference().CopyLocal()
+                r.NuGet("WebSharper.Html").Version("(,4.0)").Reference().CopyLocal()
+                r.NuGet("WebSharper.Owin").Version("(,4.0)").Reference().CopyLocal()
                 r.NuGet("Microsoft.Owin.Hosting").Reference().CopyLocal()
                 r.NuGet("Microsoft.Owin.StaticFiles").Reference().CopyLocal()
                 r.NuGet("Microsoft.Owin.FileSystems").Reference().CopyLocal()

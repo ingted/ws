@@ -3,8 +3,8 @@ System.Environment.SetEnvironmentVariable("INTELLIFACTORY", "")
 open IntelliFactory.Build
 
 let bt =
-    BuildTool().PackageId("Zafir.Owin.WebSocket")
-        .VersionFrom("Zafir")
+    BuildTool().PackageId("WebSharper.Owin.WebSocket")
+        .VersionFrom("WebSharper")
         .WithFSharpVersion(FSharpVersion.FSharp31)
         .WithFramework(fun fw -> fw.Net45)
 
@@ -15,7 +15,7 @@ let MPServiceLocation =
         @"packages\CommonServiceLocator.1.3\lib\portable-net4+sl5+netcore45+wpa81+wp8\Microsoft.Practices.ServiceLocation.dll")
 
 let main =
-    bt.Zafir.Library("WebSharper.Owin.WebSocket")
+    bt.WebSharper4.Library("WebSharper.Owin.WebSocket")
         .SourcesFromProject()
         .References(fun r ->
             [
@@ -23,22 +23,22 @@ let main =
                 r.NuGet("Microsoft.Owin").ForceFoundVersion().Reference()
                 r.NuGet("Owin.WebSocket").Version("1.6.0").Reference()
                 r.NuGet("CommonServiceLocator").ForceFoundVersion().Reference()
-                r.NuGet("Zafir.Owin").Latest(true).ForceFoundVersion().Reference()
+                r.NuGet("WebSharper.Owin").Latest(true).ForceFoundVersion().Reference()
                 r.File(MPServiceLocation)
                 r.Assembly("System.Configuration")
                 r.Assembly "System.Web"
             ])
 
 let test =
-    bt.Zafir.Executable("WebSharper.Owin.WebSocket.Test")
+    bt.WebSharper4.Executable("WebSharper.Owin.WebSocket.Test")
         .SourcesFromProject()
         .References(fun r ->
             [
                 r.NuGet("Owin").Reference().CopyLocal()
                 r.NuGet("Microsoft.Owin").Reference().CopyLocal()
                 r.NuGet("Owin.WebSocket").Version("1.6.0").Reference().CopyLocal()
-                r.NuGet("Zafir.Html").Latest(true).Reference().CopyLocal()
-                r.NuGet("Zafir.Owin").Latest(true).Reference().CopyLocal()
+                r.NuGet("WebSharper.Html").Latest(true).Reference().CopyLocal()
+                r.NuGet("WebSharper.Owin").Latest(true).Reference().CopyLocal()
                 r.NuGet("Microsoft.Owin.Hosting").Reference().CopyLocal()
                 r.NuGet("Microsoft.Owin.StaticFiles").Reference().CopyLocal()
                 r.NuGet("Microsoft.Owin.FileSystems").Reference().CopyLocal()
@@ -59,7 +59,7 @@ bt.Solution [
     bt.NuGet.CreatePackage()
         .Configure(fun c ->
             { c with
-                Title = Some "Zafir.Owin.WebSocket"
+                Title = Some "WebSharper.Owin.WebSocket"
                 LicenseUrl = Some "http://websharper.com/licensing"
                 ProjectUrl = Some "https://github.com/intellifactory/websharper.owin.websocket"
                 Description = "WebSocket support for WebSharper with Owin 1.0"
