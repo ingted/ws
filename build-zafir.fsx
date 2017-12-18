@@ -21,8 +21,8 @@ let main =
             [
                 r.NuGet("Owin").ForceFoundVersion().Reference()
                 r.NuGet("Microsoft.Owin").ForceFoundVersion().Reference()
-                r.NuGet("Owin.WebSocket").Version("1.6.0").Reference()
-                r.NuGet("CommonServiceLocator").ForceFoundVersion().Reference()
+                r.NuGet("Owin.WebSocket").Version("[1.6.0]").Reference()
+                r.NuGet("CommonServiceLocator").Version("[1.3.0]").ForceFoundVersion().Reference()
                 r.NuGet("WebSharper.Owin").Latest(true).ForceFoundVersion().Reference()
                 r.File(MPServiceLocation)
                 r.Assembly("System.Configuration")
@@ -36,7 +36,7 @@ let test =
             [
                 r.NuGet("Owin").Reference().CopyLocal()
                 r.NuGet("Microsoft.Owin").Reference().CopyLocal()
-                r.NuGet("Owin.WebSocket").Version("1.6.0").Reference().CopyLocal()
+                r.NuGet("Owin.WebSocket").Version("[1.6.0]").Reference().CopyLocal()
                 r.NuGet("WebSharper.Html").Latest(true).Reference().CopyLocal()
                 r.NuGet("WebSharper.Owin").Latest(true).Reference().CopyLocal()
                 r.NuGet("Microsoft.Owin.Hosting").Reference().CopyLocal()
