@@ -52,7 +52,8 @@ module SelfHostedServer =
     open WebSharper.Owin.WebSocket
 
     [<EntryPoint>]
-    let Main = function
+    let Main args =
+        match args with
         | [| rootDirectory; url |] ->
             use server = WebApp.Start(url, fun appB ->
                 let ep = Endpoint.Create(url, "/ws", JsonEncoding.Readable)
@@ -66,7 +67,7 @@ module SelfHostedServer =
                             ServerRootDirectory = rootDirectory,
                             Sitelet = Some (Site.MainSitelet ep),
                             Debug = true))
-                    .UseWebSocket(ep, Server.Start ep)
+                    .UseWebSocket(ep, Server.Start ep, maxMessageSize = 1000)
                     .UseStaticFiles(
                         StaticFileOptions(
                             FileSystem = PhysicalFileSystem(rootDirectory)))

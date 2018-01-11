@@ -5,7 +5,7 @@ open IntelliFactory.Build
 let bt =
     BuildTool().PackageId("WebSharper.Owin.WebSocket")
         .VersionFrom("WebSharper")
-        .WithFSharpVersion(FSharpVersion.FSharp31)
+        .WithFSharpVersion(FSharpVersion.FSharp40)
         .WithFramework(fun fw -> fw.Net45)
 
 open System.IO
@@ -21,7 +21,7 @@ let main =
             [
                 r.NuGet("Owin").ForceFoundVersion().Reference()
                 r.NuGet("Microsoft.Owin").ForceFoundVersion().Reference()
-                r.NuGet("Owin.WebSocket").Version("[1.6.0]").Reference()
+                r.NuGet("Owin.WebSocket").Reference()
                 r.NuGet("CommonServiceLocator").Version("[1.3.0]").ForceFoundVersion().Reference()
                 r.NuGet("WebSharper.Owin").Latest(true).ForceFoundVersion().Reference()
                 r.File(MPServiceLocation)
@@ -36,7 +36,7 @@ let test =
             [
                 r.NuGet("Owin").Reference().CopyLocal()
                 r.NuGet("Microsoft.Owin").Reference().CopyLocal()
-                r.NuGet("Owin.WebSocket").Version("[1.6.0]").Reference().CopyLocal()
+                r.NuGet("Owin.WebSocket").Reference().CopyLocal()
                 r.NuGet("WebSharper.Html").Latest(true).Reference().CopyLocal()
                 r.NuGet("WebSharper.Owin").Latest(true).Reference().CopyLocal()
                 r.NuGet("Microsoft.Owin.Hosting").Reference().CopyLocal()
@@ -52,9 +52,27 @@ let test =
     |> FSharpConfig.OutputPath.Custom
         (__SOURCE_DIRECTORY__ + "/WebSharper.Owin.WebSocket.Test/bin/WebSharper.Owin.WebSocket.Test.exe")
 
+let aspNetTest =
+    bt.WebSharper4.SiteletWebsite("WebSharper.Owin.WebSocket.AspNet.Test")
+        .SourcesFromProject()
+        .References(fun r ->
+            [
+                r.NuGet("Owin").Reference().CopyLocal()
+                r.NuGet("Microsoft.Owin").Reference().CopyLocal()
+                r.NuGet("Owin.WebSocket").Reference().CopyLocal()
+                r.NuGet("WebSharper.Html").Latest(true).Reference().CopyLocal()
+                r.NuGet("WebSharper.Owin").Latest(true).Reference().CopyLocal()
+                r.NuGet("Microsoft.Owin.Host.SystemWeb").Reference().CopyLocal()
+                r.Project(main).CopyLocal()
+                r.File(MPServiceLocation).CopyLocal()
+                r.Assembly("System.Configuration")
+                r.Assembly("System.Web")
+            ])
+
 bt.Solution [
     main
     test
+    aspNetTest
 
     bt.NuGet.CreatePackage()
         .Configure(fun c ->
