@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Net.WebSockets;
 using System.Runtime.InteropServices;
@@ -249,14 +250,13 @@ namespace Owin.WebSocket
             OnOpen();
             await OnOpenAsync();
 
-            var buffer = new byte[MaxMessageSize];
             Tuple<ArraySegment<byte>, WebSocketMessageType> received = null;
 
             do
             {
                 try
                 {
-                    received = await mWebSocket.ReceiveMessage(buffer, mCancellToken.Token);
+                    received = await mWebSocket.ReceiveMessage(MaxMessageSize, mCancellToken.Token);
                     if (received.Item1.Count > 0)
                         await OnMessageReceived(received.Item1, received.Item2);
                 }
@@ -275,6 +275,10 @@ namespace Owin.WebSocket
                 catch (ObjectDisposedException)
                 {
                     break;
+                }
+                catch (InternalBufferOverflowException ex)
+                {
+                    OnReceiveError(ex);
                 }
                 catch (Exception ex)
                 {

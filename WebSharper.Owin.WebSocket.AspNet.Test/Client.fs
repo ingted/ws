@@ -51,7 +51,7 @@ module Client =
                 }
             
             let lotsOfHellos = "HELLO" |> Array.create 1000
-            let lotsOf123s = 123 |> Array.create 1000
+            let lotsOf123s = 123 |> Array.create 10000
 
             while true do
                 do! Async.Sleep 1000

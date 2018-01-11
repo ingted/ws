@@ -13,7 +13,7 @@ namespace Owin.WebSocket.Handlers
         Task SendBinary(ArraySegment<byte> data, bool endOfMessage, CancellationToken cancelToken);
         Task Send(ArraySegment<byte> data, WebSocketMessageType messageType, bool endOfMessage, CancellationToken cancelToken);
         Task Close(WebSocketCloseStatus closeStatus, string closeDescription, CancellationToken cancelToken);
-        Task<Tuple<ArraySegment<byte>, WebSocketMessageType>> ReceiveMessage(byte[] buffer, CancellationToken cancelToken);
+        Task<Tuple<ArraySegment<byte>, WebSocketMessageType>> ReceiveMessage(int maxMessageSize, CancellationToken cancelToken);
         WebSocketCloseStatus? CloseStatus { get; }
         string CloseStatusDescription { get; }
     }

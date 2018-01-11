@@ -97,27 +97,43 @@ namespace Owin.WebSocket.Handlers
             return mCloseAsync((int)closeStatus, closeDescription, cancelToken);
         }
 
-        public async Task<Tuple<ArraySegment<byte>, WebSocketMessageType>> ReceiveMessage(byte[] buffer, CancellationToken cancelToken)
+        public async Task<Tuple<ArraySegment<byte>, WebSocketMessageType>> ReceiveMessage(int maxMessageSize, CancellationToken cancelToken)
         {
-            var count = 0;
-            Tuple<int,bool,int> result;
-            int opType = -1;
+            var buffer = new ArraySegment<byte>(new byte[1024 * 8]);
+            var result = await mReceiveAsync(buffer, cancelToken);
+
+            if (result.Item2)
+            {
+                return Tuple.Create(new ArraySegment<byte>(buffer.Array, 0, result.Item3), MessageTypeOpCodeToEnum(result.Item1));
+            }
+
+            var stream = new MemoryStream(1024 * 8);
+            stream.Write(buffer.Array, 0, result.Item3);
+            var opType = MessageTypeOpCodeToEnum(result.Item1);
             do
             {
-                var segment = new ArraySegment<byte>(buffer, count, buffer.Length - count);
-                result = await mReceiveAsync(segment, cancelToken);
+                result = await mReceiveAsync(buffer, cancelToken);
+                stream.Write(buffer.Array, 0, result.Item3);
 
-                count += result.Item3;
-                if (opType == -1)
-                    opType = result.Item1;
-
-                if (count == buffer.Length && !result.Item2)
+                if (stream.Length > maxMessageSize && !result.Item2)
+                {
+                    // ignore rest of incoming message
+                    do
+                    {
+                        result = await mReceiveAsync(buffer, cancelToken);
+                    }
+                    while (!result.Item2);
                     throw new InternalBufferOverflowException(
                         "The Buffer is to small to get the Websocket Message! Increase in the Constructor!");
+                }
             }
             while (!result.Item2);
 
-            return new Tuple<ArraySegment<byte>, WebSocketMessageType>(new ArraySegment<byte>(buffer, 0, count), MessageTypeOpCodeToEnum(opType));
+            stream.Seek(0, SeekOrigin.Begin);
+            buffer = new ArraySegment<byte>(new byte[stream.Length]);
+            stream.Read(buffer.Array, 0, (int)stream.Length);
+
+            return Tuple.Create(buffer, opType);
         }
 
         private static WebSocketMessageType MessageTypeOpCodeToEnum(int messageType)

@@ -60,7 +60,6 @@ let aspNetTest =
         .References(fun r ->
             [
                 r.NuGet("Owin").Reference().CopyLocal()
-                r.NuGet("Owin.WebSocket").Reference().CopyLocal()
                 r.NuGet("WebSharper.Html").Latest(true).Reference().CopyLocal()
                 r.NuGet("WebSharper.Owin").Latest(true).Reference().CopyLocal()
                 r.NuGet("Microsoft.Owin.Host.SystemWeb").Reference().CopyLocal()

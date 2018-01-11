@@ -1,4 +1,6 @@
 ﻿using System;
+using System.IO;
+using System.Collections.Generic;
 using System.Net.WebSockets;
 using System.Threading;
 using System.Threading.Tasks;
@@ -59,20 +61,43 @@ namespace Owin.WebSocket.Handlers
             return mWebSocket.CloseAsync(closeStatus, closeDescription, cancelToken);
         }
         
-        public async Task<Tuple<ArraySegment<byte>, WebSocketMessageType>> ReceiveMessage(byte[] buffer, CancellationToken cancelToken)
+        public async Task<Tuple<ArraySegment<byte>, WebSocketMessageType>> ReceiveMessage(int maxMessageSize, CancellationToken cancelToken)
         {
-            var count = 0;
-            WebSocketReceiveResult result;
+            var buffer = new ArraySegment<byte>(new byte[1024 * 8]);
+            var result = await mWebSocket.ReceiveAsync(buffer, cancelToken);
+
+            if (result.EndOfMessage)
+            {
+                return Tuple.Create(new ArraySegment<byte>(buffer.Array, 0, result.Count), result.MessageType);
+            }
+
+            var stream = new MemoryStream(1024 * 8);
+            stream.Write(buffer.Array, 0, result.Count);
+            var opType = result.MessageType;
             do
             {
-                var segment = new ArraySegment<byte>(buffer, count, buffer.Length - count);
-                result = await mWebSocket.ReceiveAsync(segment, cancelToken);
+                result = await mWebSocket.ReceiveAsync(buffer, cancelToken);
+                stream.Write(buffer.Array, 0, result.Count);
 
-                count += result.Count;
+                if (stream.Length > maxMessageSize && !result.EndOfMessage)
+                {
+                    // ignore rest of incoming message
+                    do
+                    {
+                        result = await mWebSocket.ReceiveAsync(buffer, cancelToken);
+                    }
+                    while (!result.EndOfMessage);
+                    throw new InternalBufferOverflowException(
+                        "The Buffer is to small to get the Websocket Message! Increase in the Constructor!");
+                }
             }
             while (!result.EndOfMessage);
 
-            return new Tuple<ArraySegment<byte>, WebSocketMessageType>(new ArraySegment<byte>(buffer, 0, count), result.MessageType);
+            stream.Seek(0, SeekOrigin.Begin);
+            buffer = new ArraySegment<byte>(new byte[stream.Length]);
+            stream.Read(buffer.Array, 0, (int)stream.Length);
+
+            return Tuple.Create(buffer, opType);
         }
     }
 }

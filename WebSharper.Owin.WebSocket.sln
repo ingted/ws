@@ -4,6 +4,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 15.0.27130.2020
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "WebSharper.Owin.WebSocket", "WebSharper.Owin.WebSocket\WebSharper.Owin.WebSocket.fsproj", "{7561E844-3C13-446E-BBF0-000C0030CF9E}"
+	ProjectSection(ProjectDependencies) = postProject
+		{B1D742F7-39FA-498C-B22E-1A7A61C301E7} = {B1D742F7-39FA-498C-B22E-1A7A61C301E7}
+	EndProjectSection
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "WebSharper.Owin.WebSocket.Test", "WebSharper.Owin.WebSocket.Test\WebSharper.Owin.WebSocket.Test.fsproj", "{97185975-8B4B-4814-938B-21BCE50A8875}"
 EndProject
