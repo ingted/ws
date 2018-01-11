@@ -10,13 +10,7 @@ let bt =
 
 open System.IO
 
-let owinws =   
-    bt.MSBuild(@"Owin.WebSocket\Owin.WebSocket.csproj")
-        .Configuration("Release")
-        .GeneratedAssemblyFiles(
-            [
-                Path.Combine(__SOURCE_DIRECTORY__, "build/net45/Owin.WebSocket.dll")
-            ])
+let owinwsLocation = Path.Combine(__SOURCE_DIRECTORY__, "build/net45/Owin.WebSocket.dll")
 
 let MPServiceLocation =
     Path.Combine(__SOURCE_DIRECTORY__,
@@ -29,8 +23,7 @@ let main =
             [
                 r.NuGet("Owin").ForceFoundVersion().Reference()
                 r.NuGet("Microsoft.Owin").ForceFoundVersion().Reference()
-                r.Project owinws
-                r.NuGet("Owin.WebSocket").Reference()
+                r.File(owinwsLocation)
                 r.NuGet("CommonServiceLocator").Version("[1.3.0]").ForceFoundVersion().Reference()
                 r.NuGet("WebSharper.Owin").Latest(true).ForceFoundVersion().Reference()
                 r.File(MPServiceLocation)
@@ -52,7 +45,7 @@ let test =
                 r.NuGet("Microsoft.Owin.FileSystems").Reference().CopyLocal()
                 r.NuGet("Microsoft.Owin.Host.HttpListener").Reference().CopyLocal()
                 r.NuGet("Microsoft.Owin.Diagnostics").Reference().CopyLocal()
-                r.Project(owinws).CopyLocal()
+                r.File(owinwsLocation).CopyLocal()
                 r.Project(main).CopyLocal()
                 r.File(MPServiceLocation).CopyLocal()
                 r.Assembly("System.Configuration")
@@ -67,19 +60,18 @@ let aspNetTest =
         .References(fun r ->
             [
                 r.NuGet("Owin").Reference().CopyLocal()
-                r.NuGet("Microsoft.Owin").Reference().CopyLocal()
                 r.NuGet("Owin.WebSocket").Reference().CopyLocal()
                 r.NuGet("WebSharper.Html").Latest(true).Reference().CopyLocal()
                 r.NuGet("WebSharper.Owin").Latest(true).Reference().CopyLocal()
                 r.NuGet("Microsoft.Owin.Host.SystemWeb").Reference().CopyLocal()
                 r.Project(main).CopyLocal()
+                r.File(owinwsLocation).CopyLocal()
                 r.File(MPServiceLocation).CopyLocal()
                 r.Assembly("System.Configuration")
                 r.Assembly("System.Web")
             ])
 
 bt.Solution [
-    owinws
     main
     test
     aspNetTest
