@@ -50,6 +50,14 @@ namespace Owin.WebSocket
         }
 
         /// <summary>
+        /// Aborts the websocket connection
+        /// </summary>
+        public void Abort()
+        {
+            mCancellToken.Cancel();
+        }
+
+        /// <summary>
         /// Sends data to the client with binary message type
         /// </summary>
         /// <param name="buffer">Data to send</param>
@@ -68,7 +76,7 @@ namespace Owin.WebSocket
         /// <returns>Task to send the data</returns>
         public Task SendBinary(ArraySegment<byte> buffer, bool endOfMessage)
         {
-            return mWebSocket.SendBinary(buffer, endOfMessage, CancellationToken.None);
+            return mWebSocket.SendBinary(buffer, endOfMessage, mCancellToken.Token);
         }
 
         /// <summary>
@@ -90,7 +98,7 @@ namespace Owin.WebSocket
         /// <returns>Task to send the data</returns>
         public Task SendText(ArraySegment<byte> buffer, bool endOfMessage)
         {
-            return mWebSocket.SendText(buffer, endOfMessage, CancellationToken.None);
+            return mWebSocket.SendText(buffer, endOfMessage, mCancellToken.Token);
         }
 
         /// <summary>
@@ -102,7 +110,7 @@ namespace Owin.WebSocket
         /// <returns>Task to send the data</returns>
         public Task Send(ArraySegment<byte> buffer, bool endOfMessage, WebSocketMessageType type)
         {
-            return mWebSocket.Send(buffer, type, endOfMessage, CancellationToken.None);
+            return mWebSocket.Send(buffer, type, endOfMessage, mCancellToken.Token);
         }
         
         /// <summary>
