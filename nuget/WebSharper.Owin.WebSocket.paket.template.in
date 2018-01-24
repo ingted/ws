@@ -1,0 +1,26 @@
+type file
+id WebSharper.Owin.WebSocket
+authors
+    IntelliFactory
+owners
+    IntelliFactory
+licenseUrl http://websharper.com/licensing
+projectUrl https://github.com/intellifactory/websharper.owin.websocket
+description
+    WebSocket support for WebSharper with Owin 1.0
+tags
+    Web JavaScript F# C#
+files
+    ../build/net45/Owin.WebSocket.dll ==> lib/net45/Owin.WebSocket.dll
+    ../WebSharper.Owin.WebSocket/bin/Release/netstandard2.0/WebSharper.Owin.WebSocket.dll ==> lib/net461
+    ../WebSharper.Owin.WebSocket/bin/Release/netstandard2.0/WebSharper.Owin.WebSocket.xml ==> lib/net461
+    ../WebSharper.Owin.WebSocket/bin/Release/netstandard2.0/WebSharper.Owin.WebSocket.dll ==> lib/netstandard2.0
+    ../WebSharper.Owin.WebSocket/bin/Release/netstandard2.0/WebSharper.Owin.WebSocket.xml ==> lib/netstandard2.0
+dependencies
+        WebSharper ~> LOCKEDVERSION/3
+        Owin ~> LOCKEDVERSION/3
+        Microsoft.Owin ~> LOCKEDVERSION/3
+        CommonServiceLocator ~> LOCKEDVERSION/3
+        WebSharper.Owin ~> LOCKEDVERSION/3
+frameworkAssemblies
+        System.Configuration

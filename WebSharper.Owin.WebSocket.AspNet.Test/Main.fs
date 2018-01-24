@@ -63,7 +63,7 @@ module OwinServer =
         member __.Configuration(builder: IAppBuilder) =
             WebSharper.Web.Remoting.DisableCsrfProtection()
             let path = AppDomain.CurrentDomain.SetupInformation.ApplicationBase
-            let wsAddress = @"ws://localhost:57707/"
+            let wsAddress = @"ws://localhost:38461/"
             let ep = Endpoint.Create(wsAddress, "/ws", JsonEncoding.Readable)
             let debug = System.Web.HttpContext.Current.IsDebuggingEnabled
             builder

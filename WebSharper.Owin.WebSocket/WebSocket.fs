@@ -16,25 +16,13 @@ open Microsoft.Practices.ServiceLocation
 type JsonEncoding =
     | Typed
     | Readable
-#if ZAFIR
-#else
-    | Custom of WebSharper.Core.Json.Provider * WebSharper.Json.Provider
-#endif
 
     [<JavaScript>]
     member this.ClientProviderOrElse p =
         match this with
         | Typed | Readable -> p
-#if ZAFIR
-#else
-        | Custom (_, p) -> p
-#endif
 
-#if ZAFIR
 type private Context = WebSharper.Web.Context
-#else
-type private Context = WebSharper.Web.IContext
-#endif
 
 module private Async =
     let AwaitUnitTask (tsk : System.Threading.Tasks.Task) =
@@ -217,81 +205,20 @@ module Client =
             let socket = new WebSocket(endpoint.URI)
             WithEncoding.FromWebSocket encode decode socket agent endpoint.JsonEncoding
 
-#if !ZAFIR
-    module internal Macro =
-        open WebSharper.Core.Macros
-        module Q = WebSharper.Core.Quotations
-        module J = WebSharper.Core.JavaScript.Core
-        module R = WebSharper.Core.Reflection
-        module JP = WebSharper.Json.Macro
-        type BF = System.Reflection.BindingFlags
-
-        type M() =
-            interface IMacro with
-                member this.Translate(q, tr) =
-                    let fail() = failwithf "Wrong use of macro %s" typeof<M>.FullName
-                    match q with
-                    | Q.CallOrCallModule ({Generics = s2c::c2s::_ as g; Entity = m}, args) ->
-                        match tr <|
-                            Q.CallModule(
-                                { Generics = g
-                                  Entity = R.Method.Parse(typeof<WithEncoding>.GetMethod(m.Name, BF.Static ||| BF.NonPublic))},
-                                Q.DefaultValue s2c :: Q.DefaultValue c2s :: args) with
-                        | J.Call(ns, n, _ :: _ :: jargs) ->
-                            let param = JP.Parameters.Default tr
-                            let param =
-                                if m.Name.StartsWith "Connect" then
-                                    // endpoint.JsonEncoding.ClientProviderOrElse(provider)
-                                    { param with Provider = J.Call(J.FieldGet(jargs.[0], !~(J.String "JsonEncoding")), !~(J.String "ClientProviderOrElse"), [param.Provider]) }
-                                else
-                                    param
-                            let id = J.Id()
-                            J.Let(id, param.Provider,
-                                let param = { param with Provider = J.Var id }
-                                let enc = JP.SerializeLambda param tr c2s
-                                let dec = JP.DeserializeLambda param tr s2c
-                                J.Call(ns, n, enc :: dec :: jargs)
-                            )
-                        | _ -> fail()
-                    | _ -> fail()
-#endif
-
-#if ZAFIR
     [<Inline>]
-#else
-    [<Macro(typeof<Macro.M>)>]
-#endif
     let FromWebSocket<'S2C, 'C2S> (socket: WebSocket) (agent: Agent<'S2C, 'C2S>) jsonEncoding =
         WithEncoding.FromWebSocket Json.Serialize Json.Deserialize socket agent jsonEncoding
 
-#if ZAFIR
     [<Inline>]
-#else
-    [<Macro(typeof<Macro.M>); JavaScript>]
-#endif
     let FromWebSocketStateful<'S2C, 'C2S, 'State> (socket: WebSocket) (agent: StatefulAgent<'S2C, 'C2S, 'State>) jsonEncoding =
-#if !ZAFIR
-        let x = Async.FoldAgent () (fun () -> async.Return)
-#endif
         WithEncoding.FromWebSocketStateful Json.Serialize Json.Deserialize socket agent jsonEncoding
 
-#if ZAFIR
     [<Inline>]
-#else
-    [<Macro(typeof<Macro.M>)>]
-#endif
     let Connect<'S2C, 'C2S> (endpoint: Endpoint<'S2C, 'C2S>) (agent: Agent<'S2C, 'C2S>) =
         WithEncoding.Connect Json.Serialize Json.Deserialize endpoint agent
 
-#if ZAFIR
     [<Inline>]
-#else
-    [<Macro(typeof<Macro.M>); JavaScript>]
-#endif
     let ConnectStateful<'S2C, 'C2S, 'State> (endpoint: Endpoint<'S2C, 'C2S>) (agent: StatefulAgent<'S2C, 'C2S, 'State>) =
-#if !ZAFIR
-        let x = Async.FoldAgent () (fun () -> async.Return)
-#endif
         WithEncoding.ConnectStateful Json.Serialize Json.Deserialize endpoint agent
 
 module Server =
@@ -436,10 +363,6 @@ type WebSharperWebSocketMiddleware<'S2C, 'C2S>(next: AppFunc, endpoint: Endpoint
         match endpoint.JsonEncoding with
         | JsonEncoding.Typed -> WebSharper.Web.Shared.Json
         | JsonEncoding.Readable -> WebSharper.Web.Shared.PlainJson
-#if ZAFIR
-#else
-        | JsonEncoding.Custom (p, _) -> p
-#endif
     let processor =
         {
             Agent = agent

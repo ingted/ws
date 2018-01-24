@@ -198,3 +198,10 @@ FakesAssemblies/
 # WebSharper generated
 **/Content/
 **/Scripts/
+bin/
+obj/
+/.fake/
+/paket-files/
+/.vscode/
+nuget/*.paket.template
+packages/
