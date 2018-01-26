@@ -11,11 +11,9 @@ description
 tags
     Web JavaScript F# C#
 files
-    ../build/net45/Owin.WebSocket.dll ==> lib/net45/Owin.WebSocket.dll
-    ../WebSharper.Owin.WebSocket/bin/Release/netstandard2.0/WebSharper.Owin.WebSocket.dll ==> lib/net461
-    ../WebSharper.Owin.WebSocket/bin/Release/netstandard2.0/WebSharper.Owin.WebSocket.xml ==> lib/net461
-    ../WebSharper.Owin.WebSocket/bin/Release/netstandard2.0/WebSharper.Owin.WebSocket.dll ==> lib/netstandard2.0
-    ../WebSharper.Owin.WebSocket/bin/Release/netstandard2.0/WebSharper.Owin.WebSocket.xml ==> lib/netstandard2.0
+    ../Owin.WebSocket/bin/Release/Owin.WebSocket.dll ==> lib/net461
+    ../WebSharper.Owin.WebSocket/bin/Release/WebSharper.Owin.WebSocket.dll ==> lib/net461
+    ../WebSharper.Owin.WebSocket/bin/Release/WebSharper.Owin.WebSocket.xml ==> lib/net461
 dependencies
         WebSharper ~> LOCKEDVERSION/3
         Owin ~> LOCKEDVERSION/3

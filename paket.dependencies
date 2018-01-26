@@ -17,7 +17,7 @@ nuget Microsoft.Owin.FileSystems
 nuget Microsoft.Owin.Host.HttpListener 
 nuget Microsoft.Owin.Diagnostics 
 nuget Microsoft.Owin.Host.SystemWeb 
-nuget FSharp.Core
+nuget FSharp.Core ~> 4.2.0
 
 group build
     framework: net45
