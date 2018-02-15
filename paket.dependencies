@@ -9,14 +9,14 @@ nuget WebSharper.FSharp prerelease
 nuget WebSharper.Owin prerelease
 nuget WebSharper.Html prerelease
 nuget Owin prerelease
-nuget Microsoft.Owin
+nuget Microsoft.Owin 3.0.0
 nuget CommonServiceLocator ~> 1.3.0
-nuget Microsoft.Owin.Hosting 
-nuget Microsoft.Owin.StaticFiles 
-nuget Microsoft.Owin.FileSystems 
-nuget Microsoft.Owin.Host.HttpListener 
-nuget Microsoft.Owin.Diagnostics 
-nuget Microsoft.Owin.Host.SystemWeb 
+nuget Microsoft.Owin.Hosting  3.0.0
+nuget Microsoft.Owin.StaticFiles 3.0.0
+nuget Microsoft.Owin.FileSystems 3.0.0
+nuget Microsoft.Owin.Host.HttpListener 3.0.0
+nuget Microsoft.Owin.Diagnostics 3.0.0
+nuget Microsoft.Owin.Host.SystemWeb 3.0.0
 nuget FSharp.Core ~> 4.2.0
 
 group build
