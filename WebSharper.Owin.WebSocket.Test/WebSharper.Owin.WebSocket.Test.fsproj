@@ -236,7 +236,7 @@
     <When Condition="($(TargetFrameworkIdentifier) == '.NETCoreApp' And ($(TargetFrameworkVersion) == 'v1.0' Or $(TargetFrameworkVersion) == 'v1.1' Or $(TargetFrameworkVersion) == 'v2.0')) Or ($(TargetFrameworkIdentifier) == '.NETStandard' And ($(TargetFrameworkVersion) == 'v1.6' Or $(TargetFrameworkVersion) == 'v2.0'))">
       <ItemGroup>
         <Reference Include="System.Console">
-          <HintPath>..\..\..\..\Users\jenkins.WIN-DRS439ROKOT\.nuget\packages\system.console\4.3.0\ref\netstandard1.3\System.Console.dll</HintPath>
+          <HintPath>..\..\..\..\Users\jenkins.WIN-DRS439ROKOT\.nuget\packages\system.console\4.3.1\ref\netstandard1.3\System.Console.dll</HintPath>
           <Private>False</Private>
           <Paket>True</Paket>
         </Reference>
@@ -255,10 +255,10 @@
     </When>
   </Choose>
   <Choose>
-    <When Condition="($(TargetFrameworkIdentifier) == '.NETCoreApp' And ($(TargetFrameworkVersion) == 'v1.0' Or $(TargetFrameworkVersion) == 'v1.1')) Or ($(TargetFrameworkIdentifier) == '.NETStandard' And ($(TargetFrameworkVersion) == 'v1.6' Or $(TargetFrameworkVersion) == 'v2.0'))">
+    <When Condition="($(TargetFrameworkIdentifier) == '.NETCoreApp' And ($(TargetFrameworkVersion) == 'v1.0' Or $(TargetFrameworkVersion) == 'v1.1' Or $(TargetFrameworkVersion) == 'v2.0')) Or ($(TargetFrameworkIdentifier) == '.NETStandard' And ($(TargetFrameworkVersion) == 'v1.6' Or $(TargetFrameworkVersion) == 'v2.0'))">
       <ItemGroup>
         <Reference Include="System.Diagnostics.DiagnosticSource">
-          <HintPath>..\..\..\..\Users\jenkins.WIN-DRS439ROKOT\.nuget\packages\system.diagnostics.diagnosticsource\4.4.1\lib\netstandard1.3\System.Diagnostics.DiagnosticSource.dll</HintPath>
+          <HintPath>..\..\..\..\Users\jenkins.WIN-DRS439ROKOT\.nuget\packages\system.diagnostics.diagnosticsource\4.5.0\lib\netstandard1.3\System.Diagnostics.DiagnosticSource.dll</HintPath>
           <Private>True</Private>
           <Paket>True</Paket>
         </Reference>
@@ -592,7 +592,7 @@
     <When Condition="$(TargetFrameworkIdentifier) == '.NETCoreApp' And ($(TargetFrameworkVersion) == 'v1.0' Or $(TargetFrameworkVersion) == 'v1.1')">
       <ItemGroup>
         <Reference Include="System.Reflection.TypeExtensions">
-          <HintPath>..\..\..\..\Users\jenkins.WIN-DRS439ROKOT\.nuget\packages\system.reflection.typeextensions\4.4.0\lib\netcoreapp1.0\System.Reflection.TypeExtensions.dll</HintPath>
+          <HintPath>..\..\..\..\Users\jenkins.WIN-DRS439ROKOT\.nuget\packages\system.reflection.typeextensions\4.5.0\lib\netcoreapp1.0\System.Reflection.TypeExtensions.dll</HintPath>
           <Private>True</Private>
           <Paket>True</Paket>
         </Reference>
@@ -601,7 +601,7 @@
     <When Condition="$(TargetFrameworkIdentifier) == '.NETStandard' And $(TargetFrameworkVersion) == 'v1.6'">
       <ItemGroup>
         <Reference Include="System.Reflection.TypeExtensions">
-          <HintPath>..\..\..\..\Users\jenkins.WIN-DRS439ROKOT\.nuget\packages\system.reflection.typeextensions\4.4.0\lib\netstandard1.5\System.Reflection.TypeExtensions.dll</HintPath>
+          <HintPath>..\..\..\..\Users\jenkins.WIN-DRS439ROKOT\.nuget\packages\system.reflection.typeextensions\4.5.0\lib\netstandard1.5\System.Reflection.TypeExtensions.dll</HintPath>
           <Private>True</Private>
           <Paket>True</Paket>
         </Reference>
@@ -610,7 +610,7 @@
     <When Condition="($(TargetFrameworkIdentifier) == '.NETCoreApp' And ($(TargetFrameworkVersion) == 'v1.0' Or $(TargetFrameworkVersion) == 'v1.1')) Or ($(TargetFrameworkIdentifier) == '.NETStandard' And $(TargetFrameworkVersion) == 'v1.6')">
       <ItemGroup>
         <Reference Include="System.Reflection.TypeExtensions">
-          <HintPath>..\..\..\..\Users\jenkins.WIN-DRS439ROKOT\.nuget\packages\system.reflection.typeextensions\4.4.0\ref\netstandard1.5\System.Reflection.TypeExtensions.dll</HintPath>
+          <HintPath>..\..\..\..\Users\jenkins.WIN-DRS439ROKOT\.nuget\packages\system.reflection.typeextensions\4.5.0\ref\netstandard1.5\System.Reflection.TypeExtensions.dll</HintPath>
           <Private>False</Private>
           <Paket>True</Paket>
         </Reference>
@@ -619,7 +619,7 @@
     <When Condition="$(TargetFrameworkIdentifier) == '.NETStandard' And $(TargetFrameworkVersion) == 'v2.0'">
       <ItemGroup>
         <Reference Include="System.Reflection.TypeExtensions">
-          <HintPath>..\..\..\..\Users\jenkins.WIN-DRS439ROKOT\.nuget\packages\system.reflection.typeextensions\4.4.0\lib\netstandard2.0\System.Reflection.TypeExtensions.dll</HintPath>
+          <HintPath>..\..\..\..\Users\jenkins.WIN-DRS439ROKOT\.nuget\packages\system.reflection.typeextensions\4.5.0\lib\netstandard2.0\System.Reflection.TypeExtensions.dll</HintPath>
           <Private>True</Private>
           <Paket>True</Paket>
         </Reference>
@@ -628,7 +628,7 @@
     <When Condition="$(TargetFrameworkIdentifier) == '.NETStandard' And $(TargetFrameworkVersion) == 'v2.0'">
       <ItemGroup>
         <Reference Include="System.Reflection.TypeExtensions">
-          <HintPath>..\..\..\..\Users\jenkins.WIN-DRS439ROKOT\.nuget\packages\system.reflection.typeextensions\4.4.0\ref\netstandard2.0\System.Reflection.TypeExtensions.dll</HintPath>
+          <HintPath>..\..\..\..\Users\jenkins.WIN-DRS439ROKOT\.nuget\packages\system.reflection.typeextensions\4.5.0\ref\netstandard2.0\System.Reflection.TypeExtensions.dll</HintPath>
           <Private>False</Private>
           <Paket>True</Paket>
         </Reference>
@@ -734,7 +734,7 @@
     <When Condition="$(TargetFrameworkIdentifier) == '.NETCoreApp' And $(TargetFrameworkVersion) == 'v2.0'">
       <ItemGroup>
         <Reference Include="System.Security.Cryptography.Cng">
-          <HintPath>..\..\..\..\Users\jenkins.WIN-DRS439ROKOT\.nuget\packages\system.security.cryptography.cng\4.4.0\ref\netcoreapp2.0\System.Security.Cryptography.Cng.dll</HintPath>
+          <HintPath>..\..\..\..\Users\jenkins.WIN-DRS439ROKOT\.nuget\packages\system.security.cryptography.cng\4.5.0\ref\netcoreapp2.0\System.Security.Cryptography.Cng.dll</HintPath>
           <Private>False</Private>
           <Paket>True</Paket>
         </Reference>
@@ -743,7 +743,7 @@
     <When Condition="($(TargetFrameworkIdentifier) == '.NETCoreApp' And ($(TargetFrameworkVersion) == 'v1.0' Or $(TargetFrameworkVersion) == 'v1.1')) Or ($(TargetFrameworkIdentifier) == '.NETStandard' And $(TargetFrameworkVersion) == 'v1.6')">
       <ItemGroup>
         <Reference Include="System.Security.Cryptography.Cng">
-          <HintPath>..\..\..\..\Users\jenkins.WIN-DRS439ROKOT\.nuget\packages\system.security.cryptography.cng\4.4.0\lib\netstandard1.6\System.Security.Cryptography.Cng.dll</HintPath>
+          <HintPath>..\..\..\..\Users\jenkins.WIN-DRS439ROKOT\.nuget\packages\system.security.cryptography.cng\4.5.0\lib\netstandard1.6\System.Security.Cryptography.Cng.dll</HintPath>
           <Private>True</Private>
           <Paket>True</Paket>
         </Reference>
@@ -752,7 +752,7 @@
     <When Condition="($(TargetFrameworkIdentifier) == '.NETCoreApp' And ($(TargetFrameworkVersion) == 'v1.0' Or $(TargetFrameworkVersion) == 'v1.1')) Or ($(TargetFrameworkIdentifier) == '.NETStandard' And $(TargetFrameworkVersion) == 'v1.6')">
       <ItemGroup>
         <Reference Include="System.Security.Cryptography.Cng">
-          <HintPath>..\..\..\..\Users\jenkins.WIN-DRS439ROKOT\.nuget\packages\system.security.cryptography.cng\4.4.0\ref\netstandard1.6\System.Security.Cryptography.Cng.dll</HintPath>
+          <HintPath>..\..\..\..\Users\jenkins.WIN-DRS439ROKOT\.nuget\packages\system.security.cryptography.cng\4.5.0\ref\netstandard1.6\System.Security.Cryptography.Cng.dll</HintPath>
           <Private>False</Private>
           <Paket>True</Paket>
         </Reference>
@@ -761,7 +761,7 @@
     <When Condition="($(TargetFrameworkIdentifier) == '.NETCoreApp' And $(TargetFrameworkVersion) == 'v2.0') Or ($(TargetFrameworkIdentifier) == '.NETStandard' And $(TargetFrameworkVersion) == 'v2.0')">
       <ItemGroup>
         <Reference Include="System.Security.Cryptography.Cng">
-          <HintPath>..\..\..\..\Users\jenkins.WIN-DRS439ROKOT\.nuget\packages\system.security.cryptography.cng\4.4.0\lib\netstandard2.0\System.Security.Cryptography.Cng.dll</HintPath>
+          <HintPath>..\..\..\..\Users\jenkins.WIN-DRS439ROKOT\.nuget\packages\system.security.cryptography.cng\4.5.0\lib\netstandard2.0\System.Security.Cryptography.Cng.dll</HintPath>
           <Private>True</Private>
           <Paket>True</Paket>
         </Reference>
@@ -770,7 +770,7 @@
     <When Condition="$(TargetFrameworkIdentifier) == '.NETStandard' And $(TargetFrameworkVersion) == 'v2.0'">
       <ItemGroup>
         <Reference Include="System.Security.Cryptography.Cng">
-          <HintPath>..\..\..\..\Users\jenkins.WIN-DRS439ROKOT\.nuget\packages\system.security.cryptography.cng\4.4.0\ref\netstandard2.0\System.Security.Cryptography.Cng.dll</HintPath>
+          <HintPath>..\..\..\..\Users\jenkins.WIN-DRS439ROKOT\.nuget\packages\system.security.cryptography.cng\4.5.0\ref\netstandard2.0\System.Security.Cryptography.Cng.dll</HintPath>
           <Private>False</Private>
           <Paket>True</Paket>
         </Reference>
@@ -803,7 +803,7 @@
     <When Condition="$(TargetFrameworkIdentifier) == '.NETCoreApp' And $(TargetFrameworkVersion) == 'v2.0'">
       <ItemGroup>
         <Reference Include="System.Security.Cryptography.OpenSsl">
-          <HintPath>..\..\..\..\Users\jenkins.WIN-DRS439ROKOT\.nuget\packages\system.security.cryptography.openssl\4.4.0\ref\netcoreapp2.0\System.Security.Cryptography.OpenSsl.dll</HintPath>
+          <HintPath>..\..\..\..\Users\jenkins.WIN-DRS439ROKOT\.nuget\packages\system.security.cryptography.openssl\4.5.0\ref\netcoreapp2.0\System.Security.Cryptography.OpenSsl.dll</HintPath>
           <Private>False</Private>
           <Paket>True</Paket>
         </Reference>
@@ -812,7 +812,7 @@
     <When Condition="($(TargetFrameworkIdentifier) == '.NETCoreApp' And ($(TargetFrameworkVersion) == 'v1.0' Or $(TargetFrameworkVersion) == 'v1.1')) Or ($(TargetFrameworkIdentifier) == '.NETStandard' And $(TargetFrameworkVersion) == 'v1.6')">
       <ItemGroup>
         <Reference Include="System.Security.Cryptography.OpenSsl">
-          <HintPath>..\..\..\..\Users\jenkins.WIN-DRS439ROKOT\.nuget\packages\system.security.cryptography.openssl\4.4.0\lib\netstandard1.6\System.Security.Cryptography.OpenSsl.dll</HintPath>
+          <HintPath>..\..\..\..\Users\jenkins.WIN-DRS439ROKOT\.nuget\packages\system.security.cryptography.openssl\4.5.0\lib\netstandard1.6\System.Security.Cryptography.OpenSsl.dll</HintPath>
           <Private>True</Private>
           <Paket>True</Paket>
         </Reference>
@@ -821,7 +821,7 @@
     <When Condition="($(TargetFrameworkIdentifier) == '.NETCoreApp' And ($(TargetFrameworkVersion) == 'v1.0' Or $(TargetFrameworkVersion) == 'v1.1')) Or ($(TargetFrameworkIdentifier) == '.NETStandard' And $(TargetFrameworkVersion) == 'v1.6')">
       <ItemGroup>
         <Reference Include="System.Security.Cryptography.OpenSsl">
-          <HintPath>..\..\..\..\Users\jenkins.WIN-DRS439ROKOT\.nuget\packages\system.security.cryptography.openssl\4.4.0\ref\netstandard1.6\System.Security.Cryptography.OpenSsl.dll</HintPath>
+          <HintPath>..\..\..\..\Users\jenkins.WIN-DRS439ROKOT\.nuget\packages\system.security.cryptography.openssl\4.5.0\ref\netstandard1.6\System.Security.Cryptography.OpenSsl.dll</HintPath>
           <Private>False</Private>
           <Paket>True</Paket>
         </Reference>
@@ -830,7 +830,7 @@
     <When Condition="($(TargetFrameworkIdentifier) == '.NETCoreApp' And $(TargetFrameworkVersion) == 'v2.0') Or ($(TargetFrameworkIdentifier) == '.NETStandard' And $(TargetFrameworkVersion) == 'v2.0')">
       <ItemGroup>
         <Reference Include="System.Security.Cryptography.OpenSsl">
-          <HintPath>..\..\..\..\Users\jenkins.WIN-DRS439ROKOT\.nuget\packages\system.security.cryptography.openssl\4.4.0\lib\netstandard2.0\System.Security.Cryptography.OpenSsl.dll</HintPath>
+          <HintPath>..\..\..\..\Users\jenkins.WIN-DRS439ROKOT\.nuget\packages\system.security.cryptography.openssl\4.5.0\lib\netstandard2.0\System.Security.Cryptography.OpenSsl.dll</HintPath>
           <Private>True</Private>
           <Paket>True</Paket>
         </Reference>
@@ -839,7 +839,7 @@
     <When Condition="$(TargetFrameworkIdentifier) == '.NETStandard' And $(TargetFrameworkVersion) == 'v2.0'">
       <ItemGroup>
         <Reference Include="System.Security.Cryptography.OpenSsl">
-          <HintPath>..\..\..\..\Users\jenkins.WIN-DRS439ROKOT\.nuget\packages\system.security.cryptography.openssl\4.4.0\ref\netstandard2.0\System.Security.Cryptography.OpenSsl.dll</HintPath>
+          <HintPath>..\..\..\..\Users\jenkins.WIN-DRS439ROKOT\.nuget\packages\system.security.cryptography.openssl\4.5.0\ref\netstandard2.0\System.Security.Cryptography.OpenSsl.dll</HintPath>
           <Private>False</Private>
           <Paket>True</Paket>
         </Reference>
@@ -1023,52 +1023,52 @@
     <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And ($(TargetFrameworkVersion) == 'v4.6.1' Or $(TargetFrameworkVersion) == 'v4.6.2' Or $(TargetFrameworkVersion) == 'v4.6.3' Or $(TargetFrameworkVersion) == 'v4.7' Or $(TargetFrameworkVersion) == 'v4.7.1')">
       <ItemGroup>
         <Reference Include="WebSharper.Collections">
-          <HintPath>..\..\..\..\Users\jenkins.WIN-DRS439ROKOT\.nuget\packages\websharper\4.2.4.247\lib\net461\WebSharper.Collections.dll</HintPath>
+          <HintPath>..\..\..\..\Users\jenkins.WIN-DRS439ROKOT\.nuget\packages\websharper\4.3.0.274\lib\net461\WebSharper.Collections.dll</HintPath>
           <Private>True</Private>
           <Paket>True</Paket>
         </Reference>
         <Reference Include="WebSharper.Control">
-          <HintPath>..\..\..\..\Users\jenkins.WIN-DRS439ROKOT\.nuget\packages\websharper\4.2.4.247\lib\net461\WebSharper.Control.dll</HintPath>
+          <HintPath>..\..\..\..\Users\jenkins.WIN-DRS439ROKOT\.nuget\packages\websharper\4.3.0.274\lib\net461\WebSharper.Control.dll</HintPath>
           <Private>True</Private>
           <Paket>True</Paket>
         </Reference>
         <Reference Include="WebSharper.Core">
-          <HintPath>..\..\..\..\Users\jenkins.WIN-DRS439ROKOT\.nuget\packages\websharper\4.2.4.247\lib\net461\WebSharper.Core.dll</HintPath>
+          <HintPath>..\..\..\..\Users\jenkins.WIN-DRS439ROKOT\.nuget\packages\websharper\4.3.0.274\lib\net461\WebSharper.Core.dll</HintPath>
           <Private>True</Private>
           <Paket>True</Paket>
         </Reference>
         <Reference Include="WebSharper.Core.JavaScript">
-          <HintPath>..\..\..\..\Users\jenkins.WIN-DRS439ROKOT\.nuget\packages\websharper\4.2.4.247\lib\net461\WebSharper.Core.JavaScript.dll</HintPath>
+          <HintPath>..\..\..\..\Users\jenkins.WIN-DRS439ROKOT\.nuget\packages\websharper\4.3.0.274\lib\net461\WebSharper.Core.JavaScript.dll</HintPath>
           <Private>True</Private>
           <Paket>True</Paket>
         </Reference>
         <Reference Include="WebSharper.InterfaceGenerator">
-          <HintPath>..\..\..\..\Users\jenkins.WIN-DRS439ROKOT\.nuget\packages\websharper\4.2.4.247\lib\net461\WebSharper.InterfaceGenerator.dll</HintPath>
+          <HintPath>..\..\..\..\Users\jenkins.WIN-DRS439ROKOT\.nuget\packages\websharper\4.3.0.274\lib\net461\WebSharper.InterfaceGenerator.dll</HintPath>
           <Private>True</Private>
           <Paket>True</Paket>
         </Reference>
         <Reference Include="WebSharper.JQuery">
-          <HintPath>..\..\..\..\Users\jenkins.WIN-DRS439ROKOT\.nuget\packages\websharper\4.2.4.247\lib\net461\WebSharper.JQuery.dll</HintPath>
+          <HintPath>..\..\..\..\Users\jenkins.WIN-DRS439ROKOT\.nuget\packages\websharper\4.3.0.274\lib\net461\WebSharper.JQuery.dll</HintPath>
           <Private>True</Private>
           <Paket>True</Paket>
         </Reference>
         <Reference Include="WebSharper.JavaScript">
-          <HintPath>..\..\..\..\Users\jenkins.WIN-DRS439ROKOT\.nuget\packages\websharper\4.2.4.247\lib\net461\WebSharper.JavaScript.dll</HintPath>
+          <HintPath>..\..\..\..\Users\jenkins.WIN-DRS439ROKOT\.nuget\packages\websharper\4.3.0.274\lib\net461\WebSharper.JavaScript.dll</HintPath>
           <Private>True</Private>
           <Paket>True</Paket>
         </Reference>
         <Reference Include="WebSharper.Main">
-          <HintPath>..\..\..\..\Users\jenkins.WIN-DRS439ROKOT\.nuget\packages\websharper\4.2.4.247\lib\net461\WebSharper.Main.dll</HintPath>
+          <HintPath>..\..\..\..\Users\jenkins.WIN-DRS439ROKOT\.nuget\packages\websharper\4.3.0.274\lib\net461\WebSharper.Main.dll</HintPath>
           <Private>True</Private>
           <Paket>True</Paket>
         </Reference>
         <Reference Include="WebSharper.Sitelets">
-          <HintPath>..\..\..\..\Users\jenkins.WIN-DRS439ROKOT\.nuget\packages\websharper\4.2.4.247\lib\net461\WebSharper.Sitelets.dll</HintPath>
+          <HintPath>..\..\..\..\Users\jenkins.WIN-DRS439ROKOT\.nuget\packages\websharper\4.3.0.274\lib\net461\WebSharper.Sitelets.dll</HintPath>
           <Private>True</Private>
           <Paket>True</Paket>
         </Reference>
         <Reference Include="WebSharper.Web">
-          <HintPath>..\..\..\..\Users\jenkins.WIN-DRS439ROKOT\.nuget\packages\websharper\4.2.4.247\lib\net461\WebSharper.Web.dll</HintPath>
+          <HintPath>..\..\..\..\Users\jenkins.WIN-DRS439ROKOT\.nuget\packages\websharper\4.3.0.274\lib\net461\WebSharper.Web.dll</HintPath>
           <Private>True</Private>
           <Paket>True</Paket>
         </Reference>
@@ -1077,52 +1077,52 @@
     <When Condition="($(TargetFrameworkIdentifier) == '.NETCoreApp' And $(TargetFrameworkVersion) == 'v2.0') Or ($(TargetFrameworkIdentifier) == '.NETStandard' And $(TargetFrameworkVersion) == 'v2.0')">
       <ItemGroup>
         <Reference Include="WebSharper.Collections">
-          <HintPath>..\..\..\..\Users\jenkins.WIN-DRS439ROKOT\.nuget\packages\websharper\4.2.4.247\lib\netstandard2.0\WebSharper.Collections.dll</HintPath>
+          <HintPath>..\..\..\..\Users\jenkins.WIN-DRS439ROKOT\.nuget\packages\websharper\4.3.0.274\lib\netstandard2.0\WebSharper.Collections.dll</HintPath>
           <Private>True</Private>
           <Paket>True</Paket>
         </Reference>
         <Reference Include="WebSharper.Control">
-          <HintPath>..\..\..\..\Users\jenkins.WIN-DRS439ROKOT\.nuget\packages\websharper\4.2.4.247\lib\netstandard2.0\WebSharper.Control.dll</HintPath>
+          <HintPath>..\..\..\..\Users\jenkins.WIN-DRS439ROKOT\.nuget\packages\websharper\4.3.0.274\lib\netstandard2.0\WebSharper.Control.dll</HintPath>
           <Private>True</Private>
           <Paket>True</Paket>
         </Reference>
         <Reference Include="WebSharper.Core">
-          <HintPath>..\..\..\..\Users\jenkins.WIN-DRS439ROKOT\.nuget\packages\websharper\4.2.4.247\lib\netstandard2.0\WebSharper.Core.dll</HintPath>
+          <HintPath>..\..\..\..\Users\jenkins.WIN-DRS439ROKOT\.nuget\packages\websharper\4.3.0.274\lib\netstandard2.0\WebSharper.Core.dll</HintPath>
           <Private>True</Private>
           <Paket>True</Paket>
         </Reference>
         <Reference Include="WebSharper.Core.JavaScript">
-          <HintPath>..\..\..\..\Users\jenkins.WIN-DRS439ROKOT\.nuget\packages\websharper\4.2.4.247\lib\netstandard2.0\WebSharper.Core.JavaScript.dll</HintPath>
+          <HintPath>..\..\..\..\Users\jenkins.WIN-DRS439ROKOT\.nuget\packages\websharper\4.3.0.274\lib\netstandard2.0\WebSharper.Core.JavaScript.dll</HintPath>
           <Private>True</Private>
           <Paket>True</Paket>
         </Reference>
         <Reference Include="WebSharper.InterfaceGenerator">
-          <HintPath>..\..\..\..\Users\jenkins.WIN-DRS439ROKOT\.nuget\packages\websharper\4.2.4.247\lib\netstandard2.0\WebSharper.InterfaceGenerator.dll</HintPath>
+          <HintPath>..\..\..\..\Users\jenkins.WIN-DRS439ROKOT\.nuget\packages\websharper\4.3.0.274\lib\netstandard2.0\WebSharper.InterfaceGenerator.dll</HintPath>
           <Private>True</Private>
           <Paket>True</Paket>
         </Reference>
         <Reference Include="WebSharper.JQuery">
-          <HintPath>..\..\..\..\Users\jenkins.WIN-DRS439ROKOT\.nuget\packages\websharper\4.2.4.247\lib\netstandard2.0\WebSharper.JQuery.dll</HintPath>
+          <HintPath>..\..\..\..\Users\jenkins.WIN-DRS439ROKOT\.nuget\packages\websharper\4.3.0.274\lib\netstandard2.0\WebSharper.JQuery.dll</HintPath>
           <Private>True</Private>
           <Paket>True</Paket>
         </Reference>
         <Reference Include="WebSharper.JavaScript">
-          <HintPath>..\..\..\..\Users\jenkins.WIN-DRS439ROKOT\.nuget\packages\websharper\4.2.4.247\lib\netstandard2.0\WebSharper.JavaScript.dll</HintPath>
+          <HintPath>..\..\..\..\Users\jenkins.WIN-DRS439ROKOT\.nuget\packages\websharper\4.3.0.274\lib\netstandard2.0\WebSharper.JavaScript.dll</HintPath>
           <Private>True</Private>
           <Paket>True</Paket>
         </Reference>
         <Reference Include="WebSharper.Main">
-          <HintPath>..\..\..\..\Users\jenkins.WIN-DRS439ROKOT\.nuget\packages\websharper\4.2.4.247\lib\netstandard2.0\WebSharper.Main.dll</HintPath>
+          <HintPath>..\..\..\..\Users\jenkins.WIN-DRS439ROKOT\.nuget\packages\websharper\4.3.0.274\lib\netstandard2.0\WebSharper.Main.dll</HintPath>
           <Private>True</Private>
           <Paket>True</Paket>
         </Reference>
         <Reference Include="WebSharper.Sitelets">
-          <HintPath>..\..\..\..\Users\jenkins.WIN-DRS439ROKOT\.nuget\packages\websharper\4.2.4.247\lib\netstandard2.0\WebSharper.Sitelets.dll</HintPath>
+          <HintPath>..\..\..\..\Users\jenkins.WIN-DRS439ROKOT\.nuget\packages\websharper\4.3.0.274\lib\netstandard2.0\WebSharper.Sitelets.dll</HintPath>
           <Private>True</Private>
           <Paket>True</Paket>
         </Reference>
         <Reference Include="WebSharper.Web">
-          <HintPath>..\..\..\..\Users\jenkins.WIN-DRS439ROKOT\.nuget\packages\websharper\4.2.4.247\lib\netstandard2.0\WebSharper.Web.dll</HintPath>
+          <HintPath>..\..\..\..\Users\jenkins.WIN-DRS439ROKOT\.nuget\packages\websharper\4.3.0.274\lib\netstandard2.0\WebSharper.Web.dll</HintPath>
           <Private>True</Private>
           <Paket>True</Paket>
         </Reference>
@@ -1133,12 +1133,12 @@
     <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And ($(TargetFrameworkVersion) == 'v4.6.1' Or $(TargetFrameworkVersion) == 'v4.6.2' Or $(TargetFrameworkVersion) == 'v4.6.3' Or $(TargetFrameworkVersion) == 'v4.7' Or $(TargetFrameworkVersion) == 'v4.7.1')">
       <ItemGroup>
         <Reference Include="WebSharper.Html.Client">
-          <HintPath>..\..\..\..\Users\jenkins.WIN-DRS439ROKOT\.nuget\packages\websharper.html\4.2.1.130\lib\net461\WebSharper.Html.Client.dll</HintPath>
+          <HintPath>..\..\..\..\Users\jenkins.WIN-DRS439ROKOT\.nuget\packages\websharper.html\4.3.0.136\lib\net461\WebSharper.Html.Client.dll</HintPath>
           <Private>True</Private>
           <Paket>True</Paket>
         </Reference>
         <Reference Include="WebSharper.Html.Server">
-          <HintPath>..\..\..\..\Users\jenkins.WIN-DRS439ROKOT\.nuget\packages\websharper.html\4.2.1.130\lib\net461\WebSharper.Html.Server.dll</HintPath>
+          <HintPath>..\..\..\..\Users\jenkins.WIN-DRS439ROKOT\.nuget\packages\websharper.html\4.3.0.136\lib\net461\WebSharper.Html.Server.dll</HintPath>
           <Private>True</Private>
           <Paket>True</Paket>
         </Reference>
@@ -1156,12 +1156,12 @@
           <Paket>True</Paket>
         </Reference>
         <Reference Include="WebSharper.Html.Client">
-          <HintPath>..\..\..\..\Users\jenkins.WIN-DRS439ROKOT\.nuget\packages\websharper.html\4.2.1.130\lib\netstandard2.0\WebSharper.Html.Client.dll</HintPath>
+          <HintPath>..\..\..\..\Users\jenkins.WIN-DRS439ROKOT\.nuget\packages\websharper.html\4.3.0.136\lib\netstandard2.0\WebSharper.Html.Client.dll</HintPath>
           <Private>True</Private>
           <Paket>True</Paket>
         </Reference>
         <Reference Include="WebSharper.Html.Server">
-          <HintPath>..\..\..\..\Users\jenkins.WIN-DRS439ROKOT\.nuget\packages\websharper.html\4.2.1.130\lib\netstandard2.0\WebSharper.Html.Server.dll</HintPath>
+          <HintPath>..\..\..\..\Users\jenkins.WIN-DRS439ROKOT\.nuget\packages\websharper.html\4.3.0.136\lib\netstandard2.0\WebSharper.Html.Server.dll</HintPath>
           <Private>True</Private>
           <Paket>True</Paket>
         </Reference>
@@ -1175,17 +1175,17 @@
           <Paket>True</Paket>
         </Reference>
         <Reference Include="HttpMultipartParser">
-          <HintPath>..\..\..\..\Users\jenkins.WIN-DRS439ROKOT\.nuget\packages\websharper.owin\4.2.0.119\lib\net461\HttpMultipartParser.dll</HintPath>
+          <HintPath>..\..\..\..\Users\jenkins.WIN-DRS439ROKOT\.nuget\packages\websharper.owin\4.3.0.125\lib\net461\HttpMultipartParser.dll</HintPath>
           <Private>True</Private>
           <Paket>True</Paket>
         </Reference>
         <Reference Include="WebSharper.Owin">
-          <HintPath>..\..\..\..\Users\jenkins.WIN-DRS439ROKOT\.nuget\packages\websharper.owin\4.2.0.119\lib\net461\WebSharper.Owin.dll</HintPath>
+          <HintPath>..\..\..\..\Users\jenkins.WIN-DRS439ROKOT\.nuget\packages\websharper.owin\4.3.0.125\lib\net461\WebSharper.Owin.dll</HintPath>
           <Private>True</Private>
           <Paket>True</Paket>
         </Reference>
       </ItemGroup>
     </When>
   </Choose>
-  <Import Project="..\..\..\..\Users\jenkins.WIN-DRS439ROKOT\.nuget\packages\websharper.fsharp\4.2.4.247\build\WebSharper.FSharp.targets" Condition="Exists('..\..\..\..\Users\jenkins.WIN-DRS439ROKOT\.nuget\packages\websharper.fsharp\4.2.4.247\build\WebSharper.FSharp.targets')" Label="Paket" />
+  <Import Project="..\..\..\..\Users\jenkins.WIN-DRS439ROKOT\.nuget\packages\websharper.fsharp\4.3.0.274\build\WebSharper.FSharp.targets" Condition="Exists('..\..\..\..\Users\jenkins.WIN-DRS439ROKOT\.nuget\packages\websharper.fsharp\4.3.0.274\build\WebSharper.FSharp.targets')" Label="Paket" />
 </Project>
