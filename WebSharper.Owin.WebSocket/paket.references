@@ -4,3 +4,4 @@ Owin
 Microsoft.Owin
 CommonServiceLocator
 WebSharper.Owin
+FSharp.Core
