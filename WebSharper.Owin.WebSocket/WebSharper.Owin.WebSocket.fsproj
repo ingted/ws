@@ -1054,12 +1054,12 @@
           <Paket>True</Paket>
         </Reference>
         <Reference Include="HttpMultipartParser">
-          <HintPath>..\..\..\..\Users\jenkins.WIN-DRS439ROKOT\.nuget\packages\websharper.owin\4.4.0.131\lib\net461\HttpMultipartParser.dll</HintPath>
+          <HintPath>..\..\..\..\Users\jenkins.WIN-DRS439ROKOT\.nuget\packages\websharper.owin\4.4.0.132\lib\net461\HttpMultipartParser.dll</HintPath>
           <Private>True</Private>
           <Paket>True</Paket>
         </Reference>
         <Reference Include="WebSharper.Owin">
-          <HintPath>..\..\..\..\Users\jenkins.WIN-DRS439ROKOT\.nuget\packages\websharper.owin\4.4.0.131\lib\net461\WebSharper.Owin.dll</HintPath>
+          <HintPath>..\..\..\..\Users\jenkins.WIN-DRS439ROKOT\.nuget\packages\websharper.owin\4.4.0.132\lib\net461\WebSharper.Owin.dll</HintPath>
           <Private>True</Private>
           <Paket>True</Paket>
         </Reference>
