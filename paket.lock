@@ -23,17 +23,17 @@ NUGET
       Owin (>= 1.0)
     Owin (1.0)
   remote: https://daily.websharper.com/nuget
-    WebSharper (4.5.12.336)
+    WebSharper (4.5.15.342)
       FSharp.Core (>= 4.2.3)
-    WebSharper.FSharp (4.5.12.336)
-      WebSharper (4.5.12.336)
-    WebSharper.Html (4.5.1.155)
+    WebSharper.FSharp (4.5.15.342)
+      WebSharper (4.5.15.342)
+    WebSharper.Html (4.5.1.156)
       IntelliFactory.Xml (>= 0.6.64 < 0.7)
-      WebSharper (>= 4.5.12 < 4.6)
-    WebSharper.Owin (4.5.2.164)
+      WebSharper (>= 4.5.15 < 4.6)
+    WebSharper.Owin (4.5.2.165)
       Microsoft.Owin (>= 3.0)
       Owin (>= 1.0 < 1.1)
-      WebSharper (>= 4.5.12 < 4.6)
+      WebSharper (>= 4.5.15 < 4.6)
 
 GROUP build
 RESTRICTION: == net45
@@ -57,4 +57,4 @@ GROUP wsbuild
 
 GIT
   remote: https://github.com/dotnet-websharper/build-script
-     (8195aee43305c33252be12247f9882c59daf03e8)
+     (951f1db60fdbe057a5b96f0012dab0633922bb32)
