@@ -23,17 +23,17 @@ NUGET
       Owin (>= 1.0)
     Owin (1.0)
   remote: https://daily.websharper.com/nuget
-    WebSharper (4.5.19.349)
+    WebSharper (4.6.0.361)
       FSharp.Core (>= 4.2.3)
-    WebSharper.FSharp (4.5.19.349)
-      WebSharper (4.5.19.349)
-    WebSharper.Html (4.5.1.159)
+    WebSharper.FSharp (4.6.0.361)
+      WebSharper (4.6.0.361)
+    WebSharper.Html (4.6.0.166)
       IntelliFactory.Xml (>= 0.6.64 < 0.7)
-      WebSharper (>= 4.5.19 < 4.6)
-    WebSharper.Owin (4.5.2.170)
+      WebSharper (>= 4.6 < 4.7)
+    WebSharper.Owin (4.6.0.185)
       Microsoft.Owin (>= 3.0)
       Owin (>= 1.0 < 1.1)
-      WebSharper (>= 4.5.19 < 4.6)
+      WebSharper (>= 4.6 < 4.7)
 
 GROUP build
 RESTRICTION: == net45
