@@ -60,6 +60,7 @@ module Client =
                             match data with
                             | Server.Response1 x -> writen "Response1 %s (state: %i)" x state
                             | Server.Response2 x -> writen "Response2 %i (state: %i)" x state
+                            | Server.Resp3 x -> writen "Resp3 %A" x
                             return (state + 1)
                         | Close ->
                             writen "WebSocket connection closed."
@@ -73,15 +74,19 @@ module Client =
                     }
                 }
     
-            let lotsOfHellos = "HELLO" |> Array.create 1000
-            let lotsOf123s = 123 |> Array.create 1000
+            //let lotsOfHellos = "HELLO" |> Array.create 1000
+            //let lotsOf123s = 123 |> Array.create 1000
 
             while true do
-                do! FSharp.Control.Async.Sleep 1000
-                server.Post (Server.Request1 [| "HELLO" |])
-                do! FSharp.Control.Async.Sleep 1000
-                server.Post (Server.Request2 lotsOf123s)
+                do! FSharp.Control.Async.Sleep 10
+                server.Post (Server.Req3 {name = {FirstName = "John"; LastName = "Doe"}; age = 42})
+                //do! FSharp.Control.Async.Sleep 1000
+                //server.Post (Server.Request1 [| "HELLO" |])
+                //do! FSharp.Control.Async.Sleep 1000
+                //server.Post (Server.Request2 lotsOf123s)
         }
         |> FSharp.Control.Async.Start
 
         container
+
+    

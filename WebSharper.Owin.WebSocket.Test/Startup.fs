@@ -31,7 +31,6 @@ open System
 //            .Run(fun context ->
 //                context.Response.StatusCode <- 404
 //                context.Response.WriteAsync("Page not found"))
-
 module Program =
     open WebSharper.Html.Server
     open Suave
@@ -79,11 +78,11 @@ module Program =
         //    |> ignore)
         let rootDirectory = @"C:\Users\anibal\Downloads\owin.websocket\WebSharper.Owin.WebSocket.Test\bin"
         match [| rootDirectory |] with
-        | _ ->
-            let url = "http://localhost:8080/"
-            let ep = Endpoint.Create(url, "/WS", JsonEncoding.Readable)
-            startWebServer defaultConfig (WebSharperAdapter.ToWebPart (Site.Main ep))
-            0
+        //| _ ->
+        //    let url = "http://localhost:8080/"
+        //    let ep = Endpoint.Create(url, "/WS", JsonEncoding.Readable)
+        //    startWebServer defaultConfig (WebSharperAdapter.ToWebPart (Site.Main ep))
+        //    0
         | [| rootDirectory |] ->
             //let url = 
             //    let b = Suave.Web.defaultConfig.bindings |> List.item 0
@@ -92,6 +91,7 @@ module Program =
                 let url = "http://localhost:8080/"
                 WebApp.Start(url, fun appB ->
                     let ep = Endpoint.Create(url, "/WS", JsonEncoding.Readable)
+                    let ep2 = Endpoint.Create(url, "/WS2", JsonEncoding.Readable)
                     let rootDirectory =
                         System.IO.Path.Combine(
                             System.IO.Directory.GetCurrentDirectory(),
@@ -100,9 +100,10 @@ module Program =
                     appB.UseWebSharper(
                             WebSharperOptions(
                                 ServerRootDirectory = rootDirectory,
-                                Sitelet = Some (Site.Main ep),
+                                Sitelet = Some (Site.Main ep ep2),
                                 Debug = true))
-                        .UseWebSocket(ep, Server.Start (), maxMessageSize = 1000)
+                        .UseWebSocket(ep, Server.Start 1, maxMessageSize = 1000)
+                        .UseWebSocket(ep2, Server.Start 2, maxMessageSize = 1000)
                         .UseStaticFiles(
                             StaticFileOptions(
                                 FileSystem = PhysicalFileSystem(rootDirectory)))

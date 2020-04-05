@@ -45,11 +45,16 @@ module Site =
     open WebSharper
     open WebSharper.Sitelets
     open WebSharper.Owin.WebSocket
+    open WebSharper.UI.Next.Client
 
     let HomePage ctx =
         Templating.Main ctx EndPoint.Home "Home" [
             h1Attr [] [text "Say Hi to the server!"]
             divAttr [] [client <@ Client.Main() @>]
+            //divAttr [] [client <@
+            //    div [ text "This goes into #main." ]
+            //    |> Doc.RunById "main"
+            //    @> ]
         ]
 
     let AboutPage ctx =
@@ -58,7 +63,7 @@ module Site =
             pAttr [] [text "This is a template WebSharper client-server application."]
         ]
     
-    let Socketing ep ctx =
+    let Socketing ep ep2 ctx =
         let docList = Templating.MenuBar ctx EndPoint.WS 
         let url = 
             //let b = Suave.Web.defaultConfig.bindings |> List.item 0
@@ -66,7 +71,8 @@ module Site =
             "http://localhost:8080"
         //let ep = WebSocket.Endpoint.Create(url, "/WS", JsonEncoding.Readable)
         let ws = ClientSide <@ Client.WS ep @>
-        let wc = divAttr [] [Doc.WebControl ws]               
+        let ws2 = ClientSide <@ Client.WS ep2 @>
+        let wc = divAttr [] [Doc.WebControl ws; Doc.WebControl ws2]               
         Content.Page(
             Templating.MainTemplate()
                 .Title("wsInSuave")
@@ -84,11 +90,11 @@ module Site =
     //    ]
 
     [<Website>]
-    let Main ep =
+    let Main ep ep2 =
         Application.MultiPage (fun ctx endpoint ->
             match endpoint with
             | EndPoint.Home -> HomePage ctx
             | EndPoint.About -> AboutPage ctx
-            | EndPoint.WS -> Socketing ep ctx
+            | EndPoint.WS -> Socketing ep ep2 ctx
         )
-
+    let s = Sitelet.New

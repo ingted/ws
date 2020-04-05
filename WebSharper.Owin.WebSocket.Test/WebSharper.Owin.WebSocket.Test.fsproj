@@ -304,4 +304,8 @@
       <HintPath>..\packages\WebSharper.4.6.1.381\lib\net461\WebSharper.Web.dll</HintPath>
     </Reference>
   </ItemGroup>
+  <PropertyGroup>
+    <PostBuildEvent>powershell -c "rm -force -rec C:\Users\anibal\Downloads\owin.websocket\WebSharper.Owin.WebSocket.Test\bin\Scripts"
+powershell -c "cp  -force -rec C:\Users\anibal\Downloads\owin.websocket\WebSharper.Owin.WebSocket.Test\Scripts C:\Users\anibal\Downloads\owin.websocket\WebSharper.Owin.WebSocket.Test\bin"</PostBuildEvent>
+  </PropertyGroup>
 </Project>
