@@ -34,9 +34,10 @@ open System
 
 module Program =
     open WebSharper.Html.Server
+    open Suave
     open WebSharper
     open WebSharper.Sitelets
-    //open WebSharper.Suave
+    open WebSharper.Suave    
     open global.Owin
     open Microsoft.Owin.Hosting
     open Microsoft.Owin.StaticFiles
@@ -78,6 +79,11 @@ module Program =
         //    |> ignore)
         let rootDirectory = @"C:\Users\anibal\Downloads\owin.websocket\WebSharper.Owin.WebSocket.Test\bin"
         match [| rootDirectory |] with
+        | _ ->
+            let url = "http://localhost:8080/"
+            let ep = Endpoint.Create(url, "/WS", JsonEncoding.Readable)
+            startWebServer defaultConfig (WebSharperAdapter.ToWebPart (Site.Main ep))
+            0
         | [| rootDirectory |] ->
             //let url = 
             //    let b = Suave.Web.defaultConfig.bindings |> List.item 0
