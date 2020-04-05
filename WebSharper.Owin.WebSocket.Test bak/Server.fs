@@ -1,14 +1,27 @@
-﻿namespace testFrom0
+// $begin{copyright}
+//
+// This file is part of WebSharper
+//
+// Copyright (c) 2008-2018 IntelliFactory
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you
+// may not use this file except in compliance with the License.  You may
+// obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+// implied.  See the License for the specific language governing
+// permissions and limitations under the License.
+//
+// $end{copyright}
+namespace WebSharper.Owin.WebSocket.Test
 
 module Server =
     open WebSharper
     open WebSharper.Owin.WebSocket.Server
-    [<Rpc>]
-    let DoSomething input =
-        let R (s: string) = System.String(Array.rev(s.ToCharArray()))
-        async {
-            return R input
-        }
 
     type [<JavaScript; NamedUnionCases>]
         C2SMessage =
@@ -19,16 +32,8 @@ module Server =
         S2CMessage =
         | [<Name "int">] Response2 of value: int
         | [<Name "string">] Response1 of value: string
-    
-    (*
-        type StatefulAgent<'S2C, 'C2S, 'State> = 
-            WebSocketServer<'S2C, 'C2S> -> 
-                Async<'State * ('State -> 
-                                    Message<'S2C> -> 
-                                        Async<'State>)>
-    *)
-    let Start () : StatefulAgent<S2CMessage, C2SMessage, int> =
-        
+
+    let Start route : StatefulAgent<S2CMessage, C2SMessage, int> =
         /// print to debug output and stdout
         let dprintfn x =
             Printf.ksprintf (fun s ->
@@ -38,7 +43,6 @@ module Server =
 
         fun client -> async {
             let clientIp = client.Connection.Context.Request.RemoteIpAddress
-            
             return 0, fun state msg -> async {
                 eprintfn "Received message #%i from %s" state clientIp
                 match msg with

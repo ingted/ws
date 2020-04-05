@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27130.2024
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29911.98
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "WebSharper.Owin.WebSocket", "WebSharper.Owin.WebSocket\WebSharper.Owin.WebSocket.fsproj", "{7561E844-3C13-446E-BBF0-000C0030CF9E}"
 EndProject

@@ -27,7 +27,7 @@ module Server =
                                     Message<'S2C> -> 
                                         Async<'State>)>
     *)
-    let Start () : StatefulAgent<S2CMessage, C2SMessage, int> =
+    let Start route : StatefulAgent<S2CMessage, C2SMessage, int> =
         
         /// print to debug output and stdout
         let dprintfn x =
@@ -38,7 +38,6 @@ module Server =
 
         fun client -> async {
             let clientIp = client.Connection.Context.Request.RemoteIpAddress
-            
             return 0, fun state msg -> async {
                 eprintfn "Received message #%i from %s" state clientIp
                 match msg with

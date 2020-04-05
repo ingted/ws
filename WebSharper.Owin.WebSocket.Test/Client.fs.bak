@@ -33,7 +33,7 @@ module Client =
         ]
 
     let WS (endpoint : Endpoint<Server.S2CMessage, Server.C2SMessage>) =
-        let container = Pre []
+        let container = Pre Array.empty
         let writen fmt =
             Printf.ksprintf (fun s ->
                 JS.Document.CreateTextNode(s + "\n")

@@ -9,13 +9,11 @@ open WebSharper.UI.Next
 
 open WebSharper.Html.Client
 open WebSharper.Owin.WebSocket
-//open WebSharper.UI.Next.CSharp.Client.Html
 
 
 [<JavaScript>]
 module Client =
     open WebSharper.Owin.WebSocket.Client
-    
     let Main () =
         let rvInput = Var.Create ""
         let submit = Submitter.CreateOption rvInput.View
@@ -77,11 +75,11 @@ module Client =
             let lotsOf123s = 123 |> Array.create 1000
 
             while true do
-                do! FSharp.Control.Async.Sleep 1000
+                do! Async.Sleep 1000
                 server.Post (Server.Request1 [| "HELLO" |])
-                do! FSharp.Control.Async.Sleep 1000
+                do! Async.Sleep 1000
                 server.Post (Server.Request2 lotsOf123s)
         }
-        |> FSharp.Control.Async.Start
+        |> Async.Start
 
         container

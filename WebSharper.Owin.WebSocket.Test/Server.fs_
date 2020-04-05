@@ -1,14 +1,9 @@
-﻿namespace testFrom0
+
+namespace WebSharper.Owin.WebSocket.Test
 
 module Server =
     open WebSharper
     open WebSharper.Owin.WebSocket.Server
-    [<Rpc>]
-    let DoSomething input =
-        let R (s: string) = System.String(Array.rev(s.ToCharArray()))
-        async {
-            return R input
-        }
 
     type [<JavaScript; NamedUnionCases>]
         C2SMessage =
@@ -19,16 +14,8 @@ module Server =
         S2CMessage =
         | [<Name "int">] Response2 of value: int
         | [<Name "string">] Response1 of value: string
-    
-    (*
-        type StatefulAgent<'S2C, 'C2S, 'State> = 
-            WebSocketServer<'S2C, 'C2S> -> 
-                Async<'State * ('State -> 
-                                    Message<'S2C> -> 
-                                        Async<'State>)>
-    *)
-    let Start () : StatefulAgent<S2CMessage, C2SMessage, int> =
-        
+
+    let Start route : StatefulAgent<S2CMessage, C2SMessage, int> =
         /// print to debug output and stdout
         let dprintfn x =
             Printf.ksprintf (fun s ->
@@ -38,7 +25,6 @@ module Server =
 
         fun client -> async {
             let clientIp = client.Connection.Context.Request.RemoteIpAddress
-            
             return 0, fun state msg -> async {
                 eprintfn "Received message #%i from %s" state clientIp
                 match msg with

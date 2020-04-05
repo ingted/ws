@@ -92,6 +92,7 @@ module SelfHostedServer =
                             FileSystem = PhysicalFileSystem(rootDirectory)))
                 |> ignore)
             stdout.WriteLine("Serving {0}", url)
+            
             stdin.ReadLine() |> ignore
             0
         | _ ->

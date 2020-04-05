@@ -1,37 +1,35 @@
-﻿namespace testFrom0
+
+namespace WebSharper.Owin.WebSocket.Test
 
 open WebSharper
 open WebSharper.JavaScript
-open WebSharper.UI
-open WebSharper.UI.Next.Client
-open WebSharper.UI.Next.Html
-open WebSharper.UI.Next
-
 open WebSharper.Html.Client
 open WebSharper.Owin.WebSocket
-//open WebSharper.UI.Next.CSharp.Client.Html
+
+
+
+
 
 
 [<JavaScript>]
-module Client =
+module Client = //javascript run in the browser/js client
     open WebSharper.Owin.WebSocket.Client
-    
-    let Main () =
-        let rvInput = Var.Create ""
-        let submit = Submitter.CreateOption rvInput.View
-        let vReversed =
-            submit.View.MapAsync(function
-                | None -> async { return "" }
-                | Some input -> Server.DoSomething input
-            )
-        divAttr [] [
-            Doc.Input [] rvInput
-            Doc.Button "Send" [] submit.Trigger
-            hrAttr [] []
-            h4Attr [attr.``class`` "text-muted"] [text "The server responded:"]
-            divAttr [attr.``class`` "jumbotron"] [h1Attr [] [textView vReversed]]
-        ]
 
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     let WS (endpoint : Endpoint<Server.S2CMessage, Server.C2SMessage>) =
         let container = Pre []
         let writen fmt =
@@ -40,6 +38,21 @@ module Client =
                 |> container.Dom.AppendChild
                 |> ignore
             ) fmt
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
         async {
             do
                 writen "Checking regression #4..."
@@ -72,16 +85,16 @@ module Client =
                             return state
                     }
                 }
-    
+            
             let lotsOfHellos = "HELLO" |> Array.create 1000
             let lotsOf123s = 123 |> Array.create 1000
 
             while true do
-                do! FSharp.Control.Async.Sleep 1000
+                do! Async.Sleep 1000
                 server.Post (Server.Request1 [| "HELLO" |])
-                do! FSharp.Control.Async.Sleep 1000
+                do! Async.Sleep 1000
                 server.Post (Server.Request2 lotsOf123s)
         }
-        |> FSharp.Control.Async.Start
+        |> Async.Start
 
         container

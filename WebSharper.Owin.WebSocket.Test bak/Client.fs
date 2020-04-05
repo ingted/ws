@@ -1,36 +1,32 @@
-﻿namespace testFrom0
+// $begin{copyright}
+//
+// This file is part of WebSharper
+//
+// Copyright (c) 2008-2018 IntelliFactory
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you
+// may not use this file except in compliance with the License.  You may
+// obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+// implied.  See the License for the specific language governing
+// permissions and limitations under the License.
+//
+// $end{copyright}
+namespace WebSharper.Owin.WebSocket.Test
 
 open WebSharper
 open WebSharper.JavaScript
-open WebSharper.UI
-open WebSharper.UI.Next.Client
-open WebSharper.UI.Next.Html
-open WebSharper.UI.Next
-
 open WebSharper.Html.Client
 open WebSharper.Owin.WebSocket
-//open WebSharper.UI.Next.CSharp.Client.Html
-
 
 [<JavaScript>]
-module Client =
+module Client = //javascript run in the browser/js client
     open WebSharper.Owin.WebSocket.Client
-    
-    let Main () =
-        let rvInput = Var.Create ""
-        let submit = Submitter.CreateOption rvInput.View
-        let vReversed =
-            submit.View.MapAsync(function
-                | None -> async { return "" }
-                | Some input -> Server.DoSomething input
-            )
-        divAttr [] [
-            Doc.Input [] rvInput
-            Doc.Button "Send" [] submit.Trigger
-            hrAttr [] []
-            h4Attr [attr.``class`` "text-muted"] [text "The server responded:"]
-            divAttr [attr.``class`` "jumbotron"] [h1Attr [] [textView vReversed]]
-        ]
 
     let WS (endpoint : Endpoint<Server.S2CMessage, Server.C2SMessage>) =
         let container = Pre []
@@ -72,16 +68,17 @@ module Client =
                             return state
                     }
                 }
-    
+            
             let lotsOfHellos = "HELLO" |> Array.create 1000
             let lotsOf123s = 123 |> Array.create 1000
 
             while true do
-                do! FSharp.Control.Async.Sleep 1000
+                do! Async.Sleep 1000
                 server.Post (Server.Request1 [| "HELLO" |])
-                do! FSharp.Control.Async.Sleep 1000
+                do! Async.Sleep 1000
                 server.Post (Server.Request2 lotsOf123s)
         }
-        |> FSharp.Control.Async.Start
+        |> Async.Start
 
         container
+
