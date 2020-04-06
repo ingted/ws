@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Owin.WebSocket", "Owin.WebS
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "WebSharper.Owin.WebSocket.AspNet.Test", "WebSharper.Owin.WebSocket.AspNet.Test\WebSharper.Owin.WebSocket.AspNet.Test.fsproj", "{97A76E2F-C8E8-4E41-ADD4-58580C9D48FE}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "WebSharper.Owin.WebSocket.Test2", "WebSharper.Owin.WebSocket.Test2\WebSharper.Owin.WebSocket.Test2.fsproj", "{9831BAE8-0AB5-41D9-B6DF-AC1650B9B682}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{97A76E2F-C8E8-4E41-ADD4-58580C9D48FE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{97A76E2F-C8E8-4E41-ADD4-58580C9D48FE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{97A76E2F-C8E8-4E41-ADD4-58580C9D48FE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9831BAE8-0AB5-41D9-B6DF-AC1650B9B682}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9831BAE8-0AB5-41D9-B6DF-AC1650B9B682}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9831BAE8-0AB5-41D9-B6DF-AC1650B9B682}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9831BAE8-0AB5-41D9-B6DF-AC1650B9B682}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

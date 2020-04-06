@@ -45,22 +45,19 @@ module Site =
     open WebSharper
     open WebSharper.Sitelets
     open WebSharper.Owin.WebSocket
-    open WebSharper.UI.Next.Client
+    //open WebSharper.UI.Next.Client
 
     let HomePage ctx =
         Templating.Main ctx EndPoint.Home "Home" [
             h1Attr [] [text "Say Hi to the server!"]
             divAttr [] [client <@ Client.Main() @>]
-            //divAttr [] [client <@
-            //    div [ text "This goes into #main." ]
-            //    |> Doc.RunById "main"
-            //    @> ]
         ]
 
     let AboutPage ctx =
         Templating.Main ctx EndPoint.About "About" [
             h1Attr [] [text "About"]
             pAttr [] [text "This is a template WebSharper client-server application."]
+            divAttr [] [client <@ Client.m2() @>]
         ]
     
     let Socketing ep ep2 ctx =
@@ -97,4 +94,4 @@ module Site =
             | EndPoint.About -> AboutPage ctx
             | EndPoint.WS -> Socketing ep ep2 ctx
         )
-    let s = Sitelet.New
+    //let s = Sitelet.New

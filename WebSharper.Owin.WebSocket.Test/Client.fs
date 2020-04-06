@@ -24,6 +24,8 @@ module Client =
                 | None -> async { return "" }
                 | Some input -> Server.DoSomething input
             )
+        div [ text "This goes into #main." ]
+        |> Doc.RunById "navbar"
         divAttr [] [
             Doc.Input [] rvInput
             Doc.Button "Send" [] submit.Trigger
@@ -32,6 +34,36 @@ module Client =
             divAttr [attr.``class`` "jumbotron"] [h1Attr [] [textView vReversed]]
         ]
 
+    let m2 () =
+        let varTxt = Var.Create "orz"
+        let vLength =
+            varTxt.View
+            |> View.Map String.length
+            |> View.Map (fun l -> sprintf "You entered %i characters." l)
+        //let varTxt2 = Var.Create ""
+        let vWords =
+            varTxt.View
+            |> View.Map (fun s -> s.Split(' '))
+            |> Doc.BindView (fun words ->
+                words
+                |> Array.map (fun w -> liAttr [] [text w] :> Doc)
+                |> Doc.Concat
+            )
+        
+        divAttr [] [
+            divAttr [] [
+                Doc.Input [] varTxt
+                textView vLength
+            ]
+            divAttr [] [
+                text "You entered the following words:"
+                ulAttr [] [ vWords ]
+            ]
+        ]
+
+
+
+    [<JavaScript>]
     let WS (endpoint : Endpoint<Server.S2CMessage, Server.C2SMessage>) =
         let container = Pre []
         let writen fmt =
@@ -78,7 +110,7 @@ module Client =
             //let lotsOf123s = 123 |> Array.create 1000
 
             while true do
-                do! FSharp.Control.Async.Sleep 10
+                do! FSharp.Control.Async.Sleep 1000
                 server.Post (Server.Req3 {name = {FirstName = "John"; LastName = "Doe"}; age = 42})
                 //do! FSharp.Control.Async.Sleep 1000
                 //server.Post (Server.Request1 [| "HELLO" |])
