@@ -69,6 +69,16 @@ module Client =
     //    let server = Client.WebSocketServer(socket, encode)
     //    server
 
+    //[<JavaScript>]
+    //let ttc<'T, 'S> urlStr =
+    //    let encode, decode = getEncoding0 ()
+    //    let endpoint = Endpoint<'T, 'S>.CreateRemote(url=urlStr)
+    //    let socket = new WebSocket(endpoint.URI)
+    //    let flush = cacheSocket socket decode
+    //    let isOpen = flush agent.Post
+    //    let server = Client.WebSocketServer(socket, encode)
+    //    server
+    [<JavaScript>]
     let fsiCmd () =
         let rvInput = Var.Create ""
         let submit = Submitter.CreateOption rvInput.View
@@ -76,6 +86,11 @@ module Client =
             submit.View.MapAsync(function
                 | None -> async { return "" }
                 | Some input -> Server.fsiExecute input
+                    //let svr = ttc<string, string> "ws://localhost:8080/WS2"
+                    //async {
+                    //    //svr.Post input
+                    //    return "post done" + input
+                    //}
             )
 
         divAttr [] [
@@ -190,7 +205,7 @@ module Client =
     
             //let lotsOfHellos = "HELLO" |> Array.create 1000
             //let lotsOf123s = 123 |> Array.create 1000
-            server.Post (Server.MessageFromClient "MYIP")
+            server.Post (Server.MessageFromClient "kickOff")
             //while true do
             //    do! FSharp.Control.Async.Sleep 1000
             //    server.Post (Server.Req3 {name = {FirstName = "John"; LastName = "Doe"}; age = 42})

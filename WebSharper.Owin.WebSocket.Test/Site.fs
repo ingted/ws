@@ -93,7 +93,7 @@ module Site =
     //    )
 
     let FSIPage serverSend serverReceive ctx =
-        let docList = Templating.MenuBar ctx EndPoint.WS 
+        let docList = Templating.MenuBar ctx EndPoint.FSI 
         let ws = ClientSide <@ Client.Send serverReceive @>
 
         let wc = 

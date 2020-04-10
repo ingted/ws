@@ -1,6 +1,8 @@
 ﻿namespace testFrom0
 
 open System.Threading
+open System.Reactive
+open FSharp.Control.Reactive
 
 module Server =
     open WebSharper
@@ -11,12 +13,14 @@ module Server =
         async {
             return R input
         }
-
+    let obs = 
+        Subject<string>.broadcast
     [<Rpc>]
     let fsiExecute (input:string) =
         async {
-            return input
-        }
+            obs.OnNext input
+            return "doOnNext"
+            }
 
     type Name = {
         [<Name "first-name">] FirstName: string
@@ -49,7 +53,18 @@ module Server =
                                     Message<'S2C> -> 
                                         Async<'State>)>
     *)
-    
+    let os wsproc =
+        WebSharper.Owin.WebSocket.ProcessWebSocketConnection<int, int>(wsproc)
+    let sfAgt : StatefulAgent<int, int, string * Owin.WebSocket.WebSocketConnection> =
+        fun client -> async {
+            let conn = client.Connection
+            let clientIp = client.Connection.Context.Request.RemoteIpAddress
+            return ("initState", conn), fun state msg -> async {
+                return ("stateString", conn)
+            }
+        }
+    let mre = new ManualResetEvent (false)
+
     let Start i : StatefulAgent<S2CMessage, C2SMessage, int> =
         
         /// print to debug output and stdout
@@ -78,7 +93,7 @@ module Server =
                                     channel.Reply <| (Some (Resp3 x.name), state + 1)
                                 | MessageFromClient cmd ->
                                     let ll = if cmd.Length <= 5 then cmd.Length else 5
-                                    channel.Reply <| (Some (MessageFromServer_String <| cmd.Substring ll), state + 1)
+                                    channel.Reply <| (Some (MessageFromServer_String <| cmd.Substring(0, ll)), state + 1)
                             | Error exn -> 
                                 dprintfn "Error in WebSocket server connected to %s: %s" clientIp exn.Message
                                 channel.Reply <| (Some (Response1 ("Error: " + exn.Message)), state)
@@ -102,7 +117,26 @@ module Server =
                 match msg2client with
                 | Some m ->
                     do! client.PostAsync m
+                    let loopPost cmdResult = 
+                        //sync {
+                            //let! m = 
+                            //return! loopPost ()
+                            //loopPost ()
+                            client.PostAsync (S2CMessage.MessageFromServer_String cmdResult)
+                            |> Async.Start
+                            printfn "cpIt"
+                        //}
+                    //do! loopPost ()
+
+                    use oo = 
+                        obs
+                        |> Observable.observeOn System.Reactive.Concurrency.Scheduler.CurrentThread
+                        |> Observable.subscribeOn System.Reactive.Concurrency.Scheduler.CurrentThread
+                        |> Observable.subscribe loopPost
+                    
+                    mre.WaitOne ()|> ignore
+                    printfn "jumpOut"
                 | None -> ()
-                return state
+                return state * 10
             }
         }

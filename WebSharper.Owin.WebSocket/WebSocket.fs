@@ -1,22 +1,3 @@
-// $begin{copyright}
-//
-// This file is part of WebSharper
-//
-// Copyright (c) 2008-2018 IntelliFactory
-//
-// Licensed under the Apache License, Version 2.0 (the "License"); you
-// may not use this file except in compliance with the License.  You may
-// obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
-// implied.  See the License for the specific language governing
-// permissions and limitations under the License.
-//
-// $end{copyright}
 namespace WebSharper.Owin.WebSocket
 
 open Owin
@@ -423,7 +404,7 @@ type WebSharperWebSocketMiddleware<'S2C, 'C2S>(next: AppFunc, endpoint: Endpoint
             AppFunc(fun env -> m.Invoke(env)))
 
     static member Stateful(next: AppFunc, endpoint: Endpoint<'S2C, 'C2S>, agent: Server.StatefulAgent<'S2C, 'C2S, 'State>, ?maxMessageSize : int, ?onAuth: Env -> bool) =
-        let agent client = async {
+        let agentNoState client = async {
             let! initState, receive = agent client
             let receive state msg =
                 async {
@@ -435,7 +416,7 @@ type WebSharperWebSocketMiddleware<'S2C, 'C2S>(next: AppFunc, endpoint: Endpoint
             let agent = Async.FoldAgent initState receive
             return agent.Post
         }
-        new WebSharperWebSocketMiddleware<'S2C, 'C2S>(next, endpoint, agent, ?maxMessageSize = maxMessageSize, ?onAuth = onAuth)
+        new WebSharperWebSocketMiddleware<'S2C, 'C2S>(next, endpoint, agentNoState, ?maxMessageSize = maxMessageSize, ?onAuth = onAuth)
 
     static member AsMidFunc(endpoint: Endpoint<'S2C, 'C2S>, agent: Server.StatefulAgent<'S2C, 'C2S, 'State>, ?maxMessageSize : int, ?onAuth: Env -> bool) =
         MidFunc(fun next ->
