@@ -61,6 +61,30 @@ module Client =
             ]
         ]
 
+    //let ttc<'T, 'S> () =
+    //    let encode, decode = getEncoding encode decode jsonEncoding
+    //    let flush = cacheSocket socket decode
+    //    let endpoint = Endpoint<'T, 'S>.CreateRemote(url="")
+    //    let socket = new WebSocket(endpoint.URI)
+    //    let server = Client.WebSocketServer(socket, encode)
+    //    server
+
+    let fsiCmd () =
+        let rvInput = Var.Create ""
+        let submit = Submitter.CreateOption rvInput.View
+        let vReversed =
+            submit.View.MapAsync(function
+                | None -> async { return "" }
+                | Some input -> Server.fsiExecute input
+            )
+
+        divAttr [] [
+            Doc.InputArea [] rvInput
+            Doc.Button "Send" [] submit.Trigger
+            hrAttr [] []
+            h4Attr [attr.``class`` "text-muted"] [text "The server responded:"]
+            divAttr [attr.``class`` "jumbotron"] [h1Attr [] [textView vReversed]]
+        ]
 
 
     [<JavaScript>]
@@ -93,6 +117,7 @@ module Client =
                             | Server.Response1 x -> writen "Response1 %s (state: %i)" x state
                             | Server.Response2 x -> writen "Response2 %i (state: %i)" x state
                             | Server.Resp3 x -> writen "Resp3 %A" x
+                            | Server.MessageFromServer_String x -> writen "MessageFromServer_String %A" x
                             return (state + 1)
                         | Close ->
                             writen "WebSocket connection closed."
@@ -112,6 +137,63 @@ module Client =
             while true do
                 do! FSharp.Control.Async.Sleep 1000
                 server.Post (Server.Req3 {name = {FirstName = "John"; LastName = "Doe"}; age = 42})
+                //do! FSharp.Control.Async.Sleep 1000
+                //server.Post (Server.Request1 [| "HELLO" |])
+                //do! FSharp.Control.Async.Sleep 1000
+                //server.Post (Server.Request2 lotsOf123s)
+        }
+        |> FSharp.Control.Async.Start
+
+        container
+
+    [<JavaScript>]
+    let Send (serverReceive : Endpoint<Server.S2CMessage, Server.C2SMessage>) =
+        //let encode, decode = getEncoding encode decode jsonEncoding
+        //let flush = cacheSocket socket decode
+        //let socket = new WebSocket(serverReceive.URI)
+        //let server = WebSocketServer(serverReceive, encode)
+
+
+
+        let container = Pre []
+        let writen fmt =
+            Printf.ksprintf (fun s ->
+                JS.Document.CreateTextNode(s + "\n")
+                |> container.Dom.AppendChild
+                |> ignore
+            ) fmt
+        async {
+            do
+                ()
+
+            let! server =
+                ConnectStateful serverReceive <| fun server -> async {
+                    return 0, fun state msg -> async {
+                        match msg with
+                        | Message data ->
+                            match data with
+                            | Server.MessageFromServer_String x -> writen "Response1 %s (state: %i)" x state
+                            | _ ->
+                                writen "invalidMessage"
+                            return (state + 1)
+                        | Close ->
+                            writen "WebSocket connection closed."
+                            return state
+                        | Open ->
+                            writen "WebSocket connection open."
+                            return state
+                        | Error ->
+                            writen "WebSocket connection error!"
+                            return state
+                    }
+                }
+    
+            //let lotsOfHellos = "HELLO" |> Array.create 1000
+            //let lotsOf123s = 123 |> Array.create 1000
+            server.Post (Server.MessageFromClient "MYIP")
+            //while true do
+            //    do! FSharp.Control.Async.Sleep 1000
+            //    server.Post (Server.Req3 {name = {FirstName = "John"; LastName = "Doe"}; age = 42})
                 //do! FSharp.Control.Async.Sleep 1000
                 //server.Post (Server.Request1 [| "HELLO" |])
                 //do! FSharp.Control.Async.Sleep 1000

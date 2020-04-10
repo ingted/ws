@@ -70,20 +70,15 @@
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Owin.WebSocket\Owin.WebSocket.csproj">
-      <Name>Owin.WebSocket</Name>
-      <Project>{b1d742f7-39fa-498c-b22e-1a7a61c301e7}</Project>
-      <Private>True</Private>
-    </ProjectReference>
+    <Reference Include="mscorlib" />
+    <Reference Include="System" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\WebSharper.Owin.WebSocket\WebSharper.Owin.WebSocket.fsproj">
       <Name>WebSharper.Owin.WebSocket</Name>
       <Project>{7561e844-3c13-446e-bbf0-000c0030cf9e}</Project>
       <Private>True</Private>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Reference Include="mscorlib" />
-    <Reference Include="System" />
   </ItemGroup>
   <ProjectExtensions>
     <VisualStudio>

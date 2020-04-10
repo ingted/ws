@@ -2,8 +2,8 @@
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.Owin;
-using Microsoft.Practices.ServiceLocation;
 using System;
+using CommonServiceLocator;
 
 namespace Owin.WebSocket
 {

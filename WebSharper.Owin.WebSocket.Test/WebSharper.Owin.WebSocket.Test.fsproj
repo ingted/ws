@@ -182,6 +182,8 @@
     <Error Condition="!Exists('..\..\testFrom1\packages\WebSharper.UI.Next.4.6.1.220\build\WebSharper.UI.Next.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\testFrom1\packages\WebSharper.UI.Next.4.6.1.220\build\WebSharper.UI.Next.targets'))" />
   </Target>
   <ItemGroup>
+    <!--<Content Include="wwwroot\js\mode-fsharp.js" />
+    <Content Include="wwwroot\js\index.js" />-->
     <None Include="Server.fs_" />
     <None Include="Client.fs_" />
     <None Include="Main.fs_" />
@@ -194,13 +196,17 @@
     <Compile Include="Site.fs" />
     <Compile Include="Startup.fs" />
     <None Include="Main.html" />
+    <None Include="main2.html" />
+    <Content Include="wwwroot\index.html" />
+    <Content Include="wwwroot\js\index.js" />
+    <Content Include="wwwroot\js\mode-fsharp.js" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FSharp.Core">
       <HintPath>..\packages\FSharp.Core.4.7.1\lib\net45\FSharp.Core.dll</HintPath>
     </Reference>
     <Reference Include="HtmlAgilityPack">
-      <HintPath>..\..\testFrom1\packages\WebSharper.UI.Next.4.6.1.220\lib\net40\HtmlAgilityPack.dll</HintPath>
+      <HintPath>..\packages\HtmlAgilityPack.1.11.23\lib\Net45\HtmlAgilityPack.dll</HintPath>
     </Reference>
     <Reference Include="HttpMultipartParser">
       <HintPath>..\packages\WebSharper.Owin.4.6.0.189\lib\net461\HttpMultipartParser.dll</HintPath>
@@ -232,9 +238,6 @@
     <Reference Include="mscorlib" />
     <Reference Include="Owin">
       <HintPath>..\packages\Owin.1.0\lib\net40\Owin.dll</HintPath>
-    </Reference>
-    <Reference Include="Owin.WebSocket">
-      <HintPath>..\packages\WebSharper.Owin.WebSocket.4.6.0.182\lib\net461\Owin.WebSocket.dll</HintPath>
     </Reference>
     <Reference Include="Suave">
       <HintPath>..\..\testFrom1\packages\Suave.2.5.6\lib\net461\Suave.dll</HintPath>
@@ -276,14 +279,14 @@
     <Reference Include="WebSharper.Owin">
       <HintPath>..\packages\WebSharper.Owin.4.6.0.189\lib\net461\WebSharper.Owin.dll</HintPath>
     </Reference>
-    <Reference Include="WebSharper.Owin.WebSocket">
-      <HintPath>..\packages\WebSharper.Owin.WebSocket.4.6.0.182\lib\net461\WebSharper.Owin.WebSocket.dll</HintPath>
-    </Reference>
     <Reference Include="WebSharper.Sitelets">
       <HintPath>..\packages\WebSharper.4.6.1.381\lib\net461\WebSharper.Sitelets.dll</HintPath>
     </Reference>
     <Reference Include="WebSharper.Suave">
       <HintPath>..\..\testFrom1\packages\WebSharper.Suave.4.6.0.246\lib\net461\WebSharper.Suave.dll</HintPath>
+    </Reference>
+    <Reference Include="WebSharper.UI">
+      <HintPath>..\packages\WebSharper.UI.4.6.1.207\lib\net461\WebSharper.UI.dll</HintPath>
     </Reference>
     <Reference Include="WebSharper.UI.Next">
       <HintPath>..\..\testFrom1\packages\WebSharper.UI.Next.4.6.1.220\lib\net40\WebSharper.UI.Next.dll</HintPath>
@@ -300,12 +303,35 @@
     <Reference Include="WebSharper.UI.Next.Templating.Runtime">
       <HintPath>..\..\testFrom1\packages\WebSharper.UI.Next.4.6.1.220\lib\net40\WebSharper.UI.Next.Templating.Runtime.dll</HintPath>
     </Reference>
+    <Reference Include="WebSharper.UI.Templating">
+      <HintPath>..\packages\WebSharper.UI.4.6.1.207\lib\net461\WebSharper.UI.Templating.dll</HintPath>
+    </Reference>
+    <Reference Include="WebSharper.UI.Templating.Common">
+      <HintPath>..\packages\WebSharper.UI.4.6.1.207\lib\net461\WebSharper.UI.Templating.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="WebSharper.UI.Templating.Runtime">
+      <HintPath>..\packages\WebSharper.UI.4.6.1.207\lib\net461\WebSharper.UI.Templating.Runtime.dll</HintPath>
+    </Reference>
     <Reference Include="WebSharper.Web">
       <HintPath>..\packages\WebSharper.4.6.1.381\lib\net461\WebSharper.Web.dll</HintPath>
     </Reference>
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Owin.WebSocket\Owin.WebSocket.csproj">
+      <Name>Owin.WebSocket</Name>
+      <Project>{9ad94815-2025-46c2-b6e2-2508c1a779e9}</Project>
+      <Private>True</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\WebSharper.Owin.WebSocket\WebSharper.Owin.WebSocket.fsproj">
+      <Name>WebSharper.Owin.WebSocket</Name>
+      <Project>{7561e844-3c13-446e-bbf0-000c0030cf9e}</Project>
+      <Private>True</Private>
+    </ProjectReference>
+  </ItemGroup>
   <PropertyGroup>
-    <PostBuildEvent>powershell -c "rm -force -rec C:\Users\anibal\Downloads\owin.websocket\WebSharper.Owin.WebSocket.Test\bin\Scripts"
-powershell -c "cp  -force -rec C:\Users\anibal\Downloads\owin.websocket\WebSharper.Owin.WebSocket.Test\Scripts C:\Users\anibal\Downloads\owin.websocket\WebSharper.Owin.WebSocket.Test\bin"</PostBuildEvent>
+    <PostBuildEvent>powershell -c "rm -force -rec .\Scripts -ErrorAction SilentlyContinue"
+powershell -c "rm -force -rec .\wwwroot -ErrorAction SilentlyContinue"
+powershell -c "cp  -force -rec ..\Scripts .\    "
+powershell -c "cp  -force -rec ..\wwwroot .\    "</PostBuildEvent>
   </PropertyGroup>
 </Project>

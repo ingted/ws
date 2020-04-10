@@ -29,7 +29,8 @@ open System.Text.RegularExpressions
 open System.Threading.Tasks
 open WebSharper
 open WebSharper.Owin
-open Microsoft.Practices.ServiceLocation
+open CommonServiceLocator
+
 
 [<RequireQualifiedAccess>]
 type JsonEncoding =
@@ -41,9 +42,9 @@ type JsonEncoding =
         match this with
         | Typed | Readable -> p
 
-type private Context = WebSharper.Web.Context
+type Context = WebSharper.Web.Context
 
-module private Async =
+module Async =
     let AwaitUnitTask (tsk : System.Threading.Tasks.Task) =
         tsk.ContinueWith(ignore) |> Async.AwaitTask
 
@@ -58,13 +59,13 @@ module private Async =
             loop initState
         )
 
-module private Helpers =
+module Helpers =
     let getScheme scheme =
             if scheme = "https" || scheme = "wss" then "wss"
             else "ws"
 
 type Endpoint<'S2C, 'C2S> =
-    private {
+    {
         // the uri of the websocket server
         URI : string
         // the last part of the uri
@@ -143,6 +144,7 @@ module Client =
     type StatefulAgent<'S2C, 'C2S, 'State> = WebSocketServer<'S2C, 'C2S> -> Async<'State * ('State -> Message<'S2C> -> Async<'State>)>
 
     [<JavaScript>]
+    [<Inline>] //anibal change from [<JavaScript>] to [<Inline>]
     let cacheSocket (socket: WebSocket) decode =
         let cache = Queue()
         let isOpen = ref false
@@ -155,6 +157,7 @@ module Client =
             !isOpen
 
     [<JavaScript>]
+    [<Inline>] //anibal change from [<JavaScript>] to [<Inline>]
     let getEncoding (encode: 'C2S -> string) (decode: string -> 'S2C) (jsonEncoding: JsonEncoding) =
         let encode, decode =
             match jsonEncoding with
@@ -162,6 +165,14 @@ module Client =
             | _ -> encode, decode
         let decode (msg: MessageEvent) = decode (As<string> msg.Data)
         encode, decode
+
+    [<JavaScript>]
+    [<Inline>] //anibal change from [<JavaScript>] to [<Inline>]
+    let getEncoding0 () =
+        let enc, dec =
+            Json.Stringify, Json.Parse >> Json.Activate
+        let decode (msg: MessageEvent) = dec (As<string> msg.Data)
+        enc, decode
 
     [<JavaScript>]
     type WithEncoding =
@@ -287,7 +298,7 @@ module Server =
 
     type CustomAgent<'S2C, 'C2S, 'Custom, 'State> = CustomWebSocketAgent<'S2C, 'C2S, 'Custom> -> Async<'State * ('State -> CustomMessage<'C2S, 'Custom> -> Async<'State>)>
 
-type private WebSocketProcessor<'S2C, 'C2S> =
+type WebSocketProcessor<'S2C, 'C2S> =
     {
         Agent : Server.Agent<'S2C, 'C2S>
         GetContext : Env -> Context
@@ -295,10 +306,10 @@ type private WebSocketProcessor<'S2C, 'C2S> =
         AuthenticateRequest : option<Env -> bool>
     }
 
-type private ProcessWebSocketConnection<'S2C, 'C2S> =
+type ProcessWebSocketConnection<'S2C, 'C2S> =
     inherit WebSocketConnection
-    val mutable private post : option<Server.Message<'C2S> -> unit>
-    val private processor : WebSocketProcessor<'S2C, 'C2S>
+    val mutable post : option<Server.Message<'C2S> -> unit>
+    val processor : WebSocketProcessor<'S2C, 'C2S>
 
     new (processor) =
         { inherit WebSocketConnection()
@@ -340,7 +351,7 @@ type private ProcessWebSocketConnection<'S2C, 'C2S> =
     override x.OnReceiveError(ex) =
         x.post.Value(Server.Error ex)
 
-type private WebSocketServiceLocator<'S2C, 'C2S>(processor : WebSocketProcessor<'S2C, 'C2S>, maxMessageSize : option<int>) =
+type WebSocketServiceLocator<'S2C, 'C2S>(processor : WebSocketProcessor<'S2C, 'C2S>, maxMessageSize : option<int>) =
     interface IServiceLocator with
 
         member x.GetService(typ) =

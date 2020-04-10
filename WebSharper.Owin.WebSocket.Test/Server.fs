@@ -12,6 +12,12 @@ module Server =
             return R input
         }
 
+    [<Rpc>]
+    let fsiExecute (input:string) =
+        async {
+            return input
+        }
+
     type Name = {
         [<Name "first-name">] FirstName: string
         LastName: string
@@ -27,12 +33,14 @@ module Server =
         | Request1 of str: string[]
         | Request2 of int: int[]
         | Req3 of User
+        | MessageFromClient of cmd : string
     
     and [<JavaScript; NamedUnionCases "type">]
         S2CMessage =
         | [<Name "int">] Response2 of value: int
         | [<Name "string">] Response1 of value: string
         | [<Name "name">] Resp3 of value: Name
+        | [<Name "msgStr">] MessageFromServer_String of value: string
     
     (*
         type StatefulAgent<'S2C, 'C2S, 'State> = 
@@ -68,6 +76,9 @@ module Server =
                                     channel.Reply <| (Some (Response2 x.[0]), state + 1)
                                 | Req3 x ->
                                     channel.Reply <| (Some (Resp3 x.name), state + 1)
+                                | MessageFromClient cmd ->
+                                    let ll = if cmd.Length <= 5 then cmd.Length else 5
+                                    channel.Reply <| (Some (MessageFromServer_String <| cmd.Substring ll), state + 1)
                             | Error exn -> 
                                 dprintfn "Error in WebSocket server connected to %s: %s" clientIp exn.Message
                                 channel.Reply <| (Some (Response1 ("Error: " + exn.Message)), state)
