@@ -200,8 +200,15 @@
     <Content Include="wwwroot\index.html" />
     <Content Include="wwwroot\js\index.js" />
     <Content Include="wwwroot\js\mode-fsharp.js" />
+    <None Include="testFsi.fsx" />
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="FSharp.Compiler.Service">
+      <HintPath>..\packages\FSharp.Compiler.Service.35.0.0\lib\net461\FSharp.Compiler.Service.dll</HintPath>
+    </Reference>
+    <Reference Include="FSharp.Control.Reactive">
+      <HintPath>..\packages\FSharp.Control.Reactive.4.2.0\lib\net46\FSharp.Control.Reactive.dll</HintPath>
+    </Reference>
     <Reference Include="FSharp.Core">
       <HintPath>..\packages\FSharp.Core.4.7.1\lib\net45\FSharp.Core.dll</HintPath>
     </Reference>
@@ -214,6 +221,7 @@
     <Reference Include="IntelliFactory.Xml">
       <HintPath>..\..\testFrom1\packages\IntelliFactory.Xml.0.6.64.1\lib\net40\IntelliFactory.Xml.dll</HintPath>
     </Reference>
+    <Reference Include="ISymWrapper" />
     <Reference Include="Microsoft.Owin">
       <HintPath>..\packages\Microsoft.Owin.4.1.0\lib\net45\Microsoft.Owin.dll</HintPath>
     </Reference>
@@ -243,7 +251,15 @@
       <HintPath>..\..\testFrom1\packages\Suave.2.5.6\lib\net461\Suave.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Reactive">
+      <HintPath>..\packages\System.Reactive.4.4.1\lib\net46\System.Reactive.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Reactive.Core">
+      <HintPath>..\packages\System.Reactive.Core.4.4.1\lib\net46\System.Reactive.Core.dll</HintPath>
+    </Reference>
     <Reference Include="System.Web" />
+    <Reference Include="System.Windows" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="WebSharper.Collections">
@@ -315,6 +331,7 @@
     <Reference Include="WebSharper.Web">
       <HintPath>..\packages\WebSharper.4.6.1.381\lib\net461\WebSharper.Web.dll</HintPath>
     </Reference>
+    <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Owin.WebSocket\Owin.WebSocket.csproj">
