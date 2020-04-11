@@ -148,10 +148,12 @@ module Client =
     
             //let lotsOfHellos = "HELLO" |> Array.create 1000
             //let lotsOf123s = 123 |> Array.create 1000
-
+            //server.Post (Server.Req3 {name = {FirstName = "John"; LastName = "Doe"}; age = 42})
+            let conn = server.Connection
             while true do
                 do! FSharp.Control.Async.Sleep 1000
-                server.Post (Server.Req3 {name = {FirstName = "John"; LastName = "Doe"}; age = 42})
+                conn.Send (Json.Serialize (Server.Req3 {name = {FirstName = "John00"; LastName = "Doe"}; age = 42}))
+                //server.Post (Server.Req3 {name = {FirstName = "John"; LastName = "Doe"}; age = 42})
                 //do! FSharp.Control.Async.Sleep 1000
                 //server.Post (Server.Request1 [| "HELLO" |])
                 //do! FSharp.Control.Async.Sleep 1000
