@@ -184,11 +184,8 @@
   <ItemGroup>
     <!--<Content Include="wwwroot\js\mode-fsharp.js" />
     <Content Include="wwwroot\js\index.js" />-->
-    <None Include="Server.fs_" />
-    <None Include="Client.fs_" />
-    <None Include="Main.fs_" />
     <Content Include="ws.txt" />
-    <None Include="Main.html_" />
+    <Compile Include="testFsi.fsx" />
     <Content Include="App.config" />
     <Content Include="packages.config" />
     <Compile Include="Server.fs" />
@@ -200,7 +197,6 @@
     <Content Include="wwwroot\index.html" />
     <Content Include="wwwroot\js\index.js" />
     <Content Include="wwwroot\js\mode-fsharp.js" />
-    <None Include="testFsi.fsx" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FSharp.Compiler.Service">
