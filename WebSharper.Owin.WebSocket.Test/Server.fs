@@ -3,25 +3,94 @@
 open System.Threading
 open System.Reactive
 open FSharp.Control.Reactive
+open System.IO
+open System.Text
+open FSharp.Compiler.SourceCodeServices
+open FSharp.Compiler.Interactive.Shell
+open Swensen.Unquote.Extensions
+open System
+open System.IO
+open System.Reflection
+open System.Text
+open System.Collections.Concurrent
+open System.Reactive.Subjects
+open FSharp.Control.Reactive
+
+type TwOrSub =
+| TW of TextWriter
+| SUB of ReplaySubject<string>
+type ConsoleTextWriter (tos: TwOrSub) as this = 
+    inherit TextWriter ()
+    let mutable enc = Encoding.Default
+    let queue = new ConcurrentDictionary<int, ConcurrentQueue<char> * ConcurrentQueue<char>>()
+    do 
+        ConsoleTextWriter.saveDefaultWriter ()
+        this.curWrite <- 
+            match tos with 
+            | TW tw -> fun (str:string) -> tw.WriteLine str
+            | SUB sub -> fun (str:string) -> sub.OnNext str
+    member val curWrite = Unchecked.defaultof<string -> unit> with get, set
+                
+                
+    //override this.NewLine =
+    //    Threading.Thread.CurrentThread.ManagedThreadId.ToString() + ": "
+    override this.Write(value:char) =
+        let tid = Threading.Thread.CurrentThread.ManagedThreadId
+        let preCharQ, allQ =
+            queue.GetOrAdd(
+                tid
+                , (ConcurrentQueue<char>(), ConcurrentQueue<char>())
+            )
+        let preChar = ref ' '
+        if preCharQ.IsEmpty then () 
+        else
+            ignore <| preCharQ.TryDequeue(preChar)
+            //this.curWriter.WriteLine (sprintf "dqIt %A %A" dq preChar)
+        
+        match preChar.Value, value with
+        | ('\013', '\010') ->
+            let aq = allQ.ToArray() |> Array.take (allQ.Count - 1)
+            let qq = ref (ConcurrentQueue<char>(), ConcurrentQueue<char>())
+
+            ignore <| queue.TryRemove(tid, qq)
+            let str = String.Join(null, aq)
+            let s = sprintf "%d: %s" tid str
+            //this.curWriter.WriteLine s
+            this.curWrite s
+        | _ ->
+            //this.curWriter.WriteLine (sprintf "queueIt %A" value)
+            preCharQ.Enqueue value
+            allQ.Enqueue value
+    override this.WriteLine(value:string) =
+        let tid = Threading.Thread.CurrentThread.ManagedThreadId
+        let s = sprintf "%d: %s" tid <| value.Replace("\r\n", "\r\n|")
+        //this.curWriter.WriteLine s
+        this.curWrite s
+
+    override this.Encoding 
+        with get () = enc
+    static member val locker = new Object() with get
+    static member val ifSaveDefaultWritter = false with get, set
+    static member val defaultWriter = Unchecked.defaultof<TextWriter> with get, set
+    static member saveDefaultWriter () =
+        lock ConsoleTextWriter.locker (fun () ->
+            if ConsoleTextWriter.ifSaveDefaultWritter = false then
+                ConsoleTextWriter.defaultWriter <- Console.Out
+                ConsoleTextWriter.ifSaveDefaultWritter <- true
+            )
 
 module Server =
     open WebSharper
     open WebSharper.Owin.WebSocket.Server
-    [<Rpc>]
-    let DoSomething input =
-        let R (s: string) = System.String(Array.rev(s.ToCharArray()))
-        async {
-            return R input
-        }
-    let obs = 
-        Subject<string>.replay
-    [<Rpc>]
-    let fsiExecute (input:string) =
-        async {
-            obs.OnNext input
-            return "doOnNext"
-            }
+    let sbOut = new StringBuilder()
+    let sbErr = new StringBuilder()
+    let inStream = new StringReader("")
+    let outStream = new StringWriter(sbOut)
+    let errStream = new StringWriter(sbErr)
 
+    // Build command line arguments & start FSI session
+    let argv = [|"C:\\fsi.exe"|]
+    let allArgs = Array.append argv [| "--noframework"; "--langversion:preview" |]
     type Name = {
         [<Name "first-name">] FirstName: string
         LastName: string
@@ -45,6 +114,67 @@ module Server =
         | [<Name "string">] Response1 of value: string
         | [<Name "name">] Resp3 of value: Name
         | [<Name "msgStr">] MessageFromServer_String of value: string
+
+
+    //type ConsoleTextWriter (tw:TextWriter) as this = 
+    //    inherit TextWriter ()
+    //    let mutable enc = Encoding.Default
+    //    member val curWriter = tw with get, set
+    //    member val executeWhenWriteLine = fun (str:string) -> () with get, set
+    //    member val executeWhenWrite = fun (ch:char) -> () with get, set
+    //    override this.Write(value:char) =
+    //        //let s = sprintf "orz: %A" value
+    //        //this.curWriter.WriteLine s
+    //        this.executeWhenWrite value
+    //    override this.WriteLine(value:string) =
+    //        //let s = sprintf "orz: %A" value
+    //        this.executeWhenWriteLine value
+    //    override this.Encoding 
+    //        with get () = enc
+
+    [<Rpc>]
+    let DoSomething input =
+        let R (s: string) = System.String(Array.rev(s.ToCharArray()))
+        async {
+            return R input
+        }
+    let obs = Subject<string>.replay
+    let tw = new ConsoleTextWriter(SUB obs)
+    let fsiConfig = FsiEvaluationSession.GetDefaultConfiguration()
+    let fsiSession = FsiEvaluationSession.Create(fsiConfig, allArgs, inStream, tw, tw)
+    let locker = new Object()
+
+    type FSCMD = string
+    let fsiExecututor = 
+        MailboxProcessor.Start(
+            fun (agt:MailboxProcessor<FSCMD * AsyncReplyChannel<S2CMessage option>>) -> 
+                let rec f () =
+                    async {
+                        let! (cmd, channel) = agt.Receive ()
+                        let rst, err = fsiSession.EvalInteractionNonThrowing cmd
+                        match rst with
+                        | Choice1Of2 (Some value) ->
+                            channel.Reply <| Some (MessageFromServer_String (value.ReflectionValue.ToString()))
+                        | Choice1Of2 None ->
+                            channel.Reply <| None
+                        | Choice2Of2 exn ->
+                            channel.Reply <| Some (MessageFromServer_String (exn.Message))
+                        return! f ()
+                    }
+                f ()
+    )
+
+    [<Rpc>]
+    let fsiExecute (input:string) =
+        async {
+            let reply = fsiExecututor.PostAndReply (fun (channel:AsyncReplyChannel<S2CMessage option>) -> input, channel)
+            match reply with
+            | Some (MessageFromServer_String v) -> return v
+            | None -> return "noReturn"
+            }
+
+    
+
     
     (*
         type StatefulAgent<'S2C, 'C2S, 'State> = 
@@ -55,14 +185,14 @@ module Server =
     *)
     let os wsproc =
         WebSharper.Owin.WebSocket.ProcessWebSocketConnection<int, int>(wsproc)
-    let sfAgt : StatefulAgent<int, int, string * Owin.WebSocket.WebSocketConnection> =
-        fun client -> async {
-            let conn = client.Connection
-            let clientIp = client.Connection.Context.Request.RemoteIpAddress
-            return ("initState", conn), fun state msg -> async {
-                return ("stateString", conn)
-            }
-        }
+    //let sfAgt : StatefulAgent<int, int, string * Owin.WebSocket.WebSocketConnection> =
+    //    fun client -> async {
+    //        let conn = client.Connection
+    //        let clientIp = client.Connection.Context.Request.RemoteIpAddress
+    //        return ("initState", conn), fun state msg -> async {
+    //            return ("stateString", conn)
+    //        }
+    //    }
     let mre = new ManualResetEvent (false)
 
     let Start i : StatefulAgent<S2CMessage, C2SMessage, int> =
@@ -142,14 +272,15 @@ module Server =
         }
 
     let wbSockIn i : StatefulAgent<S2CMessage, C2SMessage, int> =
+        Console.SetOut (System.IO.TextWriter.Synchronized tw)
         let dprintfn x =
             Printf.ksprintf (fun s ->
                 System.Diagnostics.Debug.WriteLine s
                 stdout.WriteLine s
             ) x
-        let fsiExecututor = 
+        let fsiKickOffAgent = 
             MailboxProcessor.Start(
-                fun (agt:MailboxProcessor<WebSocketClient<C2SMessage, S2CMessage> * Message<C2SMessage> * int * AsyncReplyChannel<S2CMessage option * int>>) -> 
+                fun (agt:MailboxProcessor<WebSocketClient<S2CMessage, C2SMessage> * Message<C2SMessage> * int * AsyncReplyChannel<S2CMessage option * int>>) -> 
                     let rec f () =
                         async {
                             let! (client, msg, state, channel) = agt.Receive () 
@@ -169,10 +300,10 @@ module Server =
                                     let ll = if cmd.Length <= 5 then cmd.Length else 5
                                     channel.Reply <| (Some (MessageFromServer_String <| cmd.Substring(0, ll)), state + 1)
                             | Error exn -> 
-                                dprintfn "Error in WebSocket server connected to %s: %s" clientIp exn.Message
+                                dprintfn "Error in WebSocket server connected to %s: %s" client.Connection.Context.Request.RemoteIpAddress exn.Message
                                 channel.Reply <| (Some (Response1 ("Error: " + exn.Message)), state)
                             | Close ->
-                                eprintfn "Closed connection to %d %s" i clientIp
+                                eprintfn "Closed connection to %d %s" i client.Connection.Context.Request.RemoteIpAddress
                                 channel.Reply <| (None, state)
                             return! f ()
                         }
@@ -182,11 +313,11 @@ module Server =
             let clientIp = client.Connection.Context.Request.RemoteIpAddress
             
             return 0, fun state msg -> async {
-                eprintfn "%d Received message #%i from %s" i state clientIp
+                eprintfn "%d Received kickOff message #%i from %s" i state clientIp
                 let! (msg2client, state) = 
-                    fsiExecututor.PostAndAsyncReply(
+                    fsiKickOffAgent.PostAndAsyncReply(
                         fun channel ->
-                            (clientIp, msg, state, channel)
+                            (client, msg, state, channel)
                     )
                 match msg2client with
                 | Some m ->

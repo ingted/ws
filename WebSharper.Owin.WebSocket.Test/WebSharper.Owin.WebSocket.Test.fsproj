@@ -185,7 +185,7 @@
     <!--<Content Include="wwwroot\js\mode-fsharp.js" />
     <Content Include="wwwroot\js\index.js" />-->
     <Content Include="ws.txt" />
-    <Compile Include="testFsi.fsx" />
+    <None Include="testFsi.fsx" />
     <Content Include="App.config" />
     <Content Include="packages.config" />
     <Compile Include="Server.fs" />
@@ -197,6 +197,7 @@
     <Content Include="wwwroot\index.html" />
     <Content Include="wwwroot\js\index.js" />
     <Content Include="wwwroot\js\mode-fsharp.js" />
+    <None Include="testFsi2.fsx" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FSharp.Compiler.Service">
@@ -258,6 +259,9 @@
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
+    <Reference Include="Unquote">
+      <HintPath>..\packages\Unquote.5.0.0\lib\net45\Unquote.dll</HintPath>
+    </Reference>
     <Reference Include="WebSharper.Collections">
       <HintPath>..\packages\WebSharper.4.6.1.381\lib\net461\WebSharper.Collections.dll</HintPath>
     </Reference>

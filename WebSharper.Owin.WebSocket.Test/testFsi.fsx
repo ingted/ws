@@ -1,8 +1,11 @@
 ﻿#if INTERACTIVE
 #r "nuget: FSharp.Compiler.Service"
+#r "nuget: Unquote"
 #endif
 open FSharp.Compiler.SourceCodeServices
 open FSharp.Compiler.Interactive.Shell
+
+open Swensen.Unquote.Extensions
 
 open System
 open System.IO
@@ -142,14 +145,79 @@ let fsiConfig = FsiEvaluationSession.GetDefaultConfiguration()
 let fsiSession = FsiEvaluationSession.Create(fsiConfig, allArgs, inStream, outStream, errStream)
 
 let evalExpression text =
-  match fsiSession.EvalExpression(text) with
-  | Some value -> printfn "%A" value.ReflectionValue
-  | None -> printfn "Got no result!"
+    match fsiSession.EvalExpression(text) with
+    | Some value -> 
+        let v = value.ReflectionValue
+        let t = value.ReflectionType
+        printfn "%A" v        
+        printfn "%A" <| v.GetType().FSharpName
+    | None -> printfn "Got no result!"
 
 evalExpression """
     let a = 1
     printfn "%d" a
 """
+open System.Reflection
+let ass = Assembly.GetAssembly typeof<Option<_>>
+ass.GetExportedTypes()|> Array.map(fun i -> i.FullName)|>Array.sort |>Array.iter (fun i -> printfn "%s" i)
+ass.GetModules()
+ass.GetTypes()|> Array.map(fun i -> i.FullName)|>Array.sort |>Array.iter (fun i -> printfn "%s" i)
+open Internal.Utilities.StructuredFormat
+let a x = x + 1
+Display.any_to_string (a, a.GetType())
+
+
+let (|TFunc|_|) (typ: Type) =
+    if typ.IsGenericType && typ.GetGenericTypeDefinition () = typeof<int->int>.GetGenericTypeDefinition () then
+        match typ.GetGenericArguments() with
+        | [|targ1; targ2|] -> Some (targ1, targ2)
+        | _ -> None
+    else
+        None
+
+let rec typeStr (typ: Type) =
+    match typ with
+    | TFunc (TFunc(_, _) as tfunc, t) -> sprintf "(%s) -> %s" (typeStr tfunc) (typeStr t)
+    | TFunc (t1, t2) -> sprintf "%s -> %s" (typeStr t1) (typeStr t2)
+    | typ when typ = typeof<int> -> "int"
+    | typ when typ = typeof<string> -> "string"
+    | typ when typ.IsGenericParameter -> sprintf "'%s" (string typ)
+    | typ -> string typ
+
+
+open Microsoft.FSharp.Reflection
+let funString o =
+    let rec loop nested t =
+        if FSharpType.IsTuple t then
+            FSharpType.GetTupleElements t
+            |> Array.map (loop true)
+            |> String.concat " * "
+        elif FSharpType.IsFunction t then
+            let fs = if nested then sprintf "(%s -> %s)" else sprintf "%s -> %s"
+            let domain, range = FSharpType.GetFunctionElements t
+            fs (loop true domain) (loop false range)
+        else
+            t.FullName
+    loop false (o.GetType())
+
+typeStr typeof<(string -> (string -> int) -> int) -> int>
+// val it: string = "string -> (string -> int) -> int"
+typeStr (typeof<int->int>.GetGenericTypeDefinition())
+
+
+
+let a x = x + 1
+typeStr (a.GetType())
+funString typeStr
+open FSharp.Compiler.Interactive.Shell
+Utilities.colorPrintL
+
+evalExpression """
+    let a x = 1 + x
+    a
+"""
+
+
 
 let evalExpressionTyped<'T> (text) =
     match fsiSession.EvalExpression(text) with
@@ -160,6 +228,10 @@ evalExpressionTyped<unit> """
     let a = 1
     printfn "%d" a
 """
+
+
+fsiSession.EvalInteraction "printfn \"bye\""
+
 module ConsoleUtil =
     open System
     open System.IO
@@ -227,27 +299,82 @@ module ConsoleUtil =
             oldMs.Dispose ()
             str
 
-
-type ConsoleTextWriter (tw:TextWriter) = 
+open System
+open System.IO
+open System.Text
+open System.Collections.Concurrent
+type ConsoleTextWriter (tw:TextWriter) as this = 
     inherit TextWriter ()
     let mutable enc = Encoding.Default
+    let queue = new ConcurrentDictionary<int, ConcurrentQueue<char> * ConcurrentQueue<char>>()
+    do 
+        ConsoleTextWriter.saveDefaultWriter ()
+    member val curWriter = tw with get, set
+
     override this.Write(value:char) =
-        let s = sprintf "orz: %A" value
-        tw.WriteLine s
+        let tid = Threading.Thread.CurrentThread.ManagedThreadId
+        let preCharQ, allQ =
+            queue.GetOrAdd(
+                tid
+                , (ConcurrentQueue<char>(), ConcurrentQueue<char>())
+            )
+        let preChar = ref ' '
+        if preCharQ.IsEmpty then () 
+        else
+            ignore <| preCharQ.TryDequeue(preChar)
+            //this.curWriter.WriteLine (sprintf "dqIt %A %A" dq preChar)
+        
+        match preChar.Value, value with
+        | ('\013', '\010') ->
+            let aq = allQ.ToArray() |> Array.take (allQ.Count - 1)
+            let qq = ref (ConcurrentQueue<char>(), ConcurrentQueue<char>())
+
+            ignore <| queue.TryRemove(tid, qq)
+            let str = String.Join(null, aq)
+            let s = sprintf "%d: %s" tid str
+            this.curWriter.WriteLine s
+        | _ ->
+            //this.curWriter.WriteLine (sprintf "queueIt %A" value)
+            preCharQ.Enqueue value
+            allQ.Enqueue value
+    override this.WriteLine(value:string) =
+        let tid = Threading.Thread.CurrentThread.ManagedThreadId
+        let s = sprintf "%d: %A" tid value
+        this.curWriter.WriteLine s
 
     override this.Encoding 
         with get () = enc
+    static member val locker = new Object() with get
+    static member val ifSaveDefaultWritter = false with get, set
+    static member val defaultWriter = Unchecked.defaultof<TextWriter> with get, set
+    static member saveDefaultWriter () =
+        lock ConsoleTextWriter.locker (fun () ->
+            if ConsoleTextWriter.ifSaveDefaultWritter = false then
+                ConsoleTextWriter.defaultWriter <- Console.Out
+                ConsoleTextWriter.ifSaveDefaultWritter <- true
+            )
+    
 
-
-
-
+(*
+ConsoleTextWriter.saveDefaultWriter ()
+ConsoleTextWriter.defaultWriter
+*)
 let tw = new ConsoleTextWriter(Console.Out)
-Console.SetOut tw
+Console.SetOut (System.IO.TextWriter.Synchronized tw)
 
 
 printfn "ppp"
+Console.WriteLine "ggg"
+tw.curWriter
 
-
+seq [0..9]
+|> Seq.map (fun _ ->
+    async {
+        printfn "dddd"
+    }
+)
+|> Async.Parallel
+|> Async.StartAsTask
 
     /// <summary>
     /// Turn a file in the virtual filesystem into a browser download.
