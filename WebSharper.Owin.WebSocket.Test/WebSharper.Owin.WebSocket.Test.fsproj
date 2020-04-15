@@ -59,95 +59,6 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
-  <Import Project="$(VSToolsPath)\WebApplications\Microsoft.WebApplication.targets" Condition="Exists('$(VSToolsPath)\WebApplications\Microsoft.WebApplication.targets')" />
-  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" Condition="false" />
-  <Choose>
-    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.6.1'" />
-  </Choose>
-  <Choose>
-    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.6.1'">
-      <ItemGroup>
-        <Reference Include="System.Web">
-          <Paket>True</Paket>
-        </Reference>
-        <Reference Include="System.Xml">
-          <Paket>True</Paket>
-        </Reference>
-        <Reference Include="System.Xml.Linq">
-          <Paket>True</Paket>
-        </Reference>
-        <Reference Include="IntelliFactory.Xml">
-          <HintPath>..\packages\IntelliFactory.Xml\lib\net40\IntelliFactory.Xml.dll</HintPath>
-          <Private>True</Private>
-          <Paket>True</Paket>
-        </Reference>
-      </ItemGroup>
-    </When>
-  </Choose>
-  <Choose>
-    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.6.1'" />
-  </Choose>
-  <Choose>
-    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.6.1'">
-      <ItemGroup>
-        <Reference Include="Microsoft.Owin.Diagnostics">
-          <HintPath>..\packages\Microsoft.Owin.Diagnostics\lib\net45\Microsoft.Owin.Diagnostics.dll</HintPath>
-          <Private>True</Private>
-          <Paket>True</Paket>
-        </Reference>
-      </ItemGroup>
-    </When>
-  </Choose>
-  <Choose>
-    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.6.1'">
-      <ItemGroup>
-        <Reference Include="Microsoft.Owin.FileSystems">
-          <HintPath>..\packages\Microsoft.Owin.FileSystems\lib\net45\Microsoft.Owin.FileSystems.dll</HintPath>
-          <Private>True</Private>
-          <Paket>True</Paket>
-        </Reference>
-      </ItemGroup>
-    </When>
-  </Choose>
-  <Choose>
-    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.6.1'">
-      <ItemGroup>
-        <Reference Include="Microsoft.Owin.Host.HttpListener">
-          <HintPath>..\packages\Microsoft.Owin.Host.HttpListener\lib\net45\Microsoft.Owin.Host.HttpListener.dll</HintPath>
-          <Private>True</Private>
-          <Paket>True</Paket>
-        </Reference>
-      </ItemGroup>
-    </When>
-  </Choose>
-  <Choose>
-    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.6.1'">
-      <ItemGroup>
-        <Reference Include="Microsoft.Owin.Hosting">
-          <HintPath>..\packages\Microsoft.Owin.Hosting\lib\net45\Microsoft.Owin.Hosting.dll</HintPath>
-          <Private>True</Private>
-          <Paket>True</Paket>
-        </Reference>
-      </ItemGroup>
-    </When>
-  </Choose>
-  <Choose>
-    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.6.1'">
-      <ItemGroup>
-        <Reference Include="Microsoft.Owin.StaticFiles">
-          <HintPath>..\packages\Microsoft.Owin.StaticFiles\lib\net45\Microsoft.Owin.StaticFiles.dll</HintPath>
-          <Private>True</Private>
-          <Paket>True</Paket>
-        </Reference>
-      </ItemGroup>
-    </When>
-  </Choose>
-  <Choose>
-    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.6.1'" />
-  </Choose>
-  <Choose>
-    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.6.1'" />
-  </Choose>
   <Choose>
     <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And $(TargetFrameworkVersion) == 'v4.6.1'">
       <ItemGroup>
@@ -173,21 +84,12 @@
       </ItemGroup>
     </When>
   </Choose>
-  <Import Project="..\packages\WebSharper.FSharp\build\WebSharper.FSharp.targets" Condition="Exists('..\packages\WebSharper.FSharp\build\WebSharper.FSharp.targets')" Label="Paket" />
-  <Import Project="..\..\testFrom1\packages\WebSharper.UI.Next.4.6.1.220\build\WebSharper.UI.Next.targets" Condition="Exists('..\..\testFrom1\packages\WebSharper.UI.Next.4.6.1.220\build\WebSharper.UI.Next.targets')" />
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('..\..\testFrom1\packages\WebSharper.UI.Next.4.6.1.220\build\WebSharper.UI.Next.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\testFrom1\packages\WebSharper.UI.Next.4.6.1.220\build\WebSharper.UI.Next.targets'))" />
-  </Target>
   <ItemGroup>
     <!--<Content Include="wwwroot\js\mode-fsharp.js" />
     <Content Include="wwwroot\js\index.js" />-->
     <Content Include="ws.txt" />
     <None Include="testFsi.fsx" />
     <Content Include="App.config" />
-    <Content Include="packages.config" />
     <Compile Include="Server.fs" />
     <Compile Include="Client.fs" />
     <Compile Include="Site.fs" />
@@ -198,6 +100,7 @@
     <Content Include="wwwroot\js\index.js" />
     <Content Include="wwwroot\js\mode-fsharp.js" />
     <None Include="testFsi2.fsx" />
+    <Content Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FSharp.Compiler.Service">
@@ -210,49 +113,72 @@
       <HintPath>..\packages\FSharp.Core.4.7.1\lib\net45\FSharp.Core.dll</HintPath>
     </Reference>
     <Reference Include="HtmlAgilityPack">
-      <HintPath>..\packages\HtmlAgilityPack.1.11.23\lib\Net45\HtmlAgilityPack.dll</HintPath>
+      <HintPath>..\packages\WebSharper.UI.Next.4.6.1.220\lib\net40\HtmlAgilityPack.dll</HintPath>
     </Reference>
     <Reference Include="HttpMultipartParser">
       <HintPath>..\packages\WebSharper.Owin.4.6.0.189\lib\net461\HttpMultipartParser.dll</HintPath>
     </Reference>
     <Reference Include="IntelliFactory.Xml">
-      <HintPath>..\..\testFrom1\packages\IntelliFactory.Xml.0.6.64.1\lib\net40\IntelliFactory.Xml.dll</HintPath>
+      <HintPath>..\packages\IntelliFactory.Xml.0.6.64.1\lib\net40\IntelliFactory.Xml.dll</HintPath>
     </Reference>
     <Reference Include="ISymWrapper" />
     <Reference Include="Microsoft.Owin">
       <HintPath>..\packages\Microsoft.Owin.4.1.0\lib\net45\Microsoft.Owin.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Owin.FileSystems">
-      <HintPath>..\..\testFrom1\packages\Microsoft.Owin.FileSystems.4.1.0\lib\net45\Microsoft.Owin.FileSystems.dll</HintPath>
+      <HintPath>..\packages\Microsoft.Owin.FileSystems.4.1.0\lib\net45\Microsoft.Owin.FileSystems.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Owin.Host.HttpListener">
-      <HintPath>..\..\testFrom1\packages\Microsoft.Owin.Host.HttpListener.4.1.0\lib\net45\Microsoft.Owin.Host.HttpListener.dll</HintPath>
+      <HintPath>..\packages\Microsoft.Owin.Host.HttpListener.4.1.0\lib\net45\Microsoft.Owin.Host.HttpListener.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Owin.Host.SystemWeb">
-      <HintPath>..\..\testFrom1\packages\Microsoft.Owin.Host.SystemWeb.4.1.0\lib\net45\Microsoft.Owin.Host.SystemWeb.dll</HintPath>
+      <HintPath>..\packages\Microsoft.Owin.Host.SystemWeb.4.1.0\lib\net45\Microsoft.Owin.Host.SystemWeb.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Owin.Hosting">
-      <HintPath>..\..\testFrom1\packages\Microsoft.Owin.Hosting.4.1.0\lib\net45\Microsoft.Owin.Hosting.dll</HintPath>
+      <HintPath>..\packages\Microsoft.Owin.Hosting.4.1.0\lib\net45\Microsoft.Owin.Hosting.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Owin.StaticFiles">
-      <HintPath>..\..\testFrom1\packages\Microsoft.Owin.StaticFiles.4.1.0\lib\net45\Microsoft.Owin.StaticFiles.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Practices.ServiceLocation">
-      <HintPath>..\packages\CommonServiceLocator.1.3\lib\portable-net4+sl5+netcore45+wpa81+wp8\Microsoft.Practices.ServiceLocation.dll</HintPath>
+      <HintPath>..\packages\Microsoft.Owin.StaticFiles.4.1.0\lib\net45\Microsoft.Owin.StaticFiles.dll</HintPath>
     </Reference>
     <Reference Include="mscorlib" />
     <Reference Include="Owin">
       <HintPath>..\packages\Owin.1.0\lib\net40\Owin.dll</HintPath>
     </Reference>
     <Reference Include="Suave">
-      <HintPath>..\..\testFrom1\packages\Suave.2.5.6\lib\net461\Suave.dll</HintPath>
+      <HintPath>..\packages\Suave.2.5.6\lib\net461\Suave.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Buffers">
+      <HintPath>..\packages\System.Buffers.4.5.1\lib\net461\System.Buffers.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Collections.Immutable">
+      <HintPath>..\packages\System.Collections.Immutable.5.0.0-preview.2.20160.6\lib\netstandard2.0\System.Collections.Immutable.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Memory">
+      <HintPath>..\packages\System.Memory.4.5.4\lib\net461\System.Memory.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Numerics.Vectors">
+      <HintPath>..\packages\System.Numerics.Vectors.4.5.0\lib\net46\System.Numerics.Vectors.dll</HintPath>
+    </Reference>
     <Reference Include="System.Reactive">
       <HintPath>..\packages\System.Reactive.4.4.1\lib\net46\System.Reactive.dll</HintPath>
     </Reference>
     <Reference Include="System.Reactive.Core">
       <HintPath>..\packages\System.Reactive.Core.4.4.1\lib\net46\System.Reactive.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Reflection.Metadata">
+      <HintPath>..\packages\System.Reflection.Metadata.5.0.0-preview.2.20160.6\lib\netstandard2.0\System.Reflection.Metadata.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.CompilerServices.Unsafe">
+      <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.4.5.3\lib\net461\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Threading.Tasks.Extensions">
+      <HintPath>..\packages\System.Threading.Tasks.Extensions.4.5.4\lib\net461\System.Threading.Tasks.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ValueTuple">
+      <Private>True</Private>
     </Reference>
     <Reference Include="System.Web" />
     <Reference Include="System.Windows" />
@@ -275,10 +201,10 @@
       <HintPath>..\packages\WebSharper.4.6.1.381\lib\net461\WebSharper.Core.JavaScript.dll</HintPath>
     </Reference>
     <Reference Include="WebSharper.Html.Client">
-      <HintPath>..\..\testFrom1\packages\WebSharper.Html.4.6.0.170\lib\net461\WebSharper.Html.Client.dll</HintPath>
+      <HintPath>..\packages\WebSharper.Html.4.6.0.170\lib\net461\WebSharper.Html.Client.dll</HintPath>
     </Reference>
     <Reference Include="WebSharper.Html.Server">
-      <HintPath>..\..\testFrom1\packages\WebSharper.Html.4.6.0.170\lib\net461\WebSharper.Html.Server.dll</HintPath>
+      <HintPath>..\packages\WebSharper.Html.4.6.0.170\lib\net461\WebSharper.Html.Server.dll</HintPath>
     </Reference>
     <Reference Include="WebSharper.InterfaceGenerator">
       <HintPath>..\packages\WebSharper.4.6.1.381\lib\net461\WebSharper.InterfaceGenerator.dll</HintPath>
@@ -299,25 +225,25 @@
       <HintPath>..\packages\WebSharper.4.6.1.381\lib\net461\WebSharper.Sitelets.dll</HintPath>
     </Reference>
     <Reference Include="WebSharper.Suave">
-      <HintPath>..\..\testFrom1\packages\WebSharper.Suave.4.6.0.246\lib\net461\WebSharper.Suave.dll</HintPath>
+      <HintPath>..\packages\WebSharper.Suave.4.6.0.246\lib\net461\WebSharper.Suave.dll</HintPath>
     </Reference>
     <Reference Include="WebSharper.UI">
       <HintPath>..\packages\WebSharper.UI.4.6.1.207\lib\net461\WebSharper.UI.dll</HintPath>
     </Reference>
     <Reference Include="WebSharper.UI.Next">
-      <HintPath>..\..\testFrom1\packages\WebSharper.UI.Next.4.6.1.220\lib\net40\WebSharper.UI.Next.dll</HintPath>
+      <HintPath>..\packages\WebSharper.UI.Next.4.6.1.220\lib\net40\WebSharper.UI.Next.dll</HintPath>
     </Reference>
     <Reference Include="WebSharper.UI.Next.CSharp">
-      <HintPath>..\..\testFrom1\packages\WebSharper.UI.Next.4.6.1.220\lib\net40\WebSharper.UI.Next.CSharp.dll</HintPath>
+      <HintPath>..\packages\WebSharper.UI.Next.4.6.1.220\lib\net40\WebSharper.UI.Next.CSharp.dll</HintPath>
     </Reference>
     <Reference Include="WebSharper.UI.Next.Templating">
-      <HintPath>..\..\testFrom1\packages\WebSharper.UI.Next.4.6.1.220\lib\net40\WebSharper.UI.Next.Templating.dll</HintPath>
+      <HintPath>..\packages\WebSharper.UI.Next.4.6.1.220\lib\net40\WebSharper.UI.Next.Templating.dll</HintPath>
     </Reference>
     <Reference Include="WebSharper.UI.Next.Templating.Common">
-      <HintPath>..\..\testFrom1\packages\WebSharper.UI.Next.4.6.1.220\lib\net40\WebSharper.UI.Next.Templating.Common.dll</HintPath>
+      <HintPath>..\packages\WebSharper.UI.Next.4.6.1.220\lib\net40\WebSharper.UI.Next.Templating.Common.dll</HintPath>
     </Reference>
     <Reference Include="WebSharper.UI.Next.Templating.Runtime">
-      <HintPath>..\..\testFrom1\packages\WebSharper.UI.Next.4.6.1.220\lib\net40\WebSharper.UI.Next.Templating.Runtime.dll</HintPath>
+      <HintPath>..\packages\WebSharper.UI.Next.4.6.1.220\lib\net40\WebSharper.UI.Next.Templating.Runtime.dll</HintPath>
     </Reference>
     <Reference Include="WebSharper.UI.Templating">
       <HintPath>..\packages\WebSharper.UI.4.6.1.207\lib\net461\WebSharper.UI.Templating.dll</HintPath>
@@ -352,4 +278,11 @@ powershell -c "cp  -force -rec ..\Scripts .\    "
 powershell -c "cp  -force -rec ..\wwwroot .\    "
 powershell -c "cp  -force 'C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\Facades\System.ValueTuple.dll' .\ "</PostBuildEvent>
   </PropertyGroup>
+  <Import Project="..\packages\WebSharper.UI.Next.4.6.1.220\build\WebSharper.UI.Next.targets" Condition="Exists('..\packages\WebSharper.UI.Next.4.6.1.220\build\WebSharper.UI.Next.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\WebSharper.UI.Next.4.6.1.220\build\WebSharper.UI.Next.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\WebSharper.UI.Next.4.6.1.220\build\WebSharper.UI.Next.targets'))" />
+  </Target>
 </Project>
