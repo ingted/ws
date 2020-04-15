@@ -19,17 +19,20 @@ open FSharp.Control.Reactive
 type TwOrSub =
 | TW of TextWriter
 | SUB of ReplaySubject<string>
-type ConsoleTextWriter (tos: TwOrSub) as this = 
+type ConsoleTextWriter (tos: TwOrSub) = 
     inherit TextWriter ()
     let mutable enc = Encoding.Default
     let queue = new ConcurrentDictionary<int, ConcurrentQueue<char> * ConcurrentQueue<char>>()
+    let mutable cw = Unchecked.defaultof<string -> unit>
     do 
         ConsoleTextWriter.saveDefaultWriter ()
-        this.curWrite <- 
+        cw <- 
             match tos with 
             | TW tw -> fun (str:string) -> tw.WriteLine str
             | SUB sub -> fun (str:string) -> sub.OnNext str
-    member val curWrite = Unchecked.defaultof<string -> unit> with get, set
+    member this.curWrite 
+        with get () = cw
+        and set value = cw <- value
                 
                 
     //override this.NewLine =
@@ -77,6 +80,8 @@ type ConsoleTextWriter (tos: TwOrSub) as this =
             if ConsoleTextWriter.ifSaveDefaultWritter = false then
                 ConsoleTextWriter.defaultWriter <- Console.Out
                 ConsoleTextWriter.ifSaveDefaultWritter <- true
+                //let a = 123
+                //()
             )
 
 module Server =
@@ -139,7 +144,19 @@ module Server =
             return R input
         }
     let obs = Subject<string>.replay
+    let obsOrig = Subject<string>.broadcast
     let tw = new ConsoleTextWriter(SUB obs)
+
+    let ooOrig = 
+        obsOrig
+        |> Observable.observeOn System.Reactive.Concurrency.Scheduler.CurrentThread
+        |> Observable.subscribeOn System.Reactive.Concurrency.Scheduler.CurrentThread
+        |> Observable.subscribe (fun o ->
+            //let tid = Threading.Thread.CurrentThread.ManagedThreadId.ToString()
+            ConsoleTextWriter.defaultWriter.WriteLine o
+        )
+
+    Console.SetOut tw
     let fsiConfig = FsiEvaluationSession.GetDefaultConfiguration()
     let fsiSession = FsiEvaluationSession.Create(fsiConfig, allArgs, inStream, tw, tw)
     let locker = new Object()
@@ -154,6 +171,7 @@ module Server =
                         let rst, err = fsiSession.EvalInteractionNonThrowing cmd
                         match rst with
                         | Choice1Of2 (Some value) ->
+                            if value.ReflectionValue = null then channel.Reply <| None else
                             channel.Reply <| Some (MessageFromServer_String (value.ReflectionValue.ToString()))
                         | Choice1Of2 None ->
                             channel.Reply <| None
@@ -171,6 +189,7 @@ module Server =
             match reply with
             | Some (MessageFromServer_String v) -> return v
             | None -> return "noReturn"
+            | _ -> return "invalidMsg"
             }
 
     
@@ -239,6 +258,7 @@ module Server =
             
             return 0, fun state msg -> async {
                 eprintfn "%d Received message #%i from %s" i state clientIp
+                //let tid = Threading.Thread.CurrentThread.ManagedThreadId.ToString() + ":"
                 let! (msg2client, state) = 
                     agt.PostAndAsyncReply(
                         fun channel ->
@@ -247,19 +267,24 @@ module Server =
                 match msg2client with
                 | Some m ->
                     do! client.PostAsync m
-                    let loopPost cmdResult = 
+                    let loopPost (cmdResult:string) = 
                         //sync {
                             //let! m = 
                             //return! loopPost ()
                             //loopPost ()
+                            if cmdResult.Substring(0, 2) = "1:" then
+                                obsOrig.OnNext cmdResult
                             client.PostAsync (S2CMessage.MessageFromServer_String cmdResult)
                             |> Async.Start
-                            printfn "cpIt"
+                            //printfn "cpIt"
                         //}
                     //do! loopPost ()
 
                     use oo = 
                         obs
+                        //|> Observable.filter (fun o ->
+                        //    o.Substring(0, 2) <> tid
+                        //)
                         |> Observable.observeOn System.Reactive.Concurrency.Scheduler.CurrentThread
                         |> Observable.subscribeOn System.Reactive.Concurrency.Scheduler.CurrentThread
                         |> Observable.subscribe loopPost

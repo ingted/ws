@@ -34,7 +34,7 @@
     <RootNamespace>WebSharper.Owin.WebSocket.Test</RootNamespace>
     <AssemblyName>WebSharper.Owin.WebSocket.Test</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
-    <TargetFSharpCoreVersion>4.4.1.0</TargetFSharpCoreVersion>
+    <TargetFSharpCoreVersion>4.7.1.0</TargetFSharpCoreVersion>
     <WarningLevel>3</WarningLevel>
   </PropertyGroup>
   <Target Name="IncludeContent" BeforeTargets="Compile">
@@ -349,6 +349,7 @@
     <PostBuildEvent>powershell -c "rm -force -rec .\Scripts -ErrorAction SilentlyContinue"
 powershell -c "rm -force -rec .\wwwroot -ErrorAction SilentlyContinue"
 powershell -c "cp  -force -rec ..\Scripts .\    "
-powershell -c "cp  -force -rec ..\wwwroot .\    "</PostBuildEvent>
+powershell -c "cp  -force -rec ..\wwwroot .\    "
+powershell -c "cp  -force 'C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\Facades\System.ValueTuple.dll' .\ "</PostBuildEvent>
   </PropertyGroup>
 </Project>

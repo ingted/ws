@@ -55,6 +55,7 @@ module Program =
 
     [<EntryPoint>]
     let main args =
+        ConsoleTextWriter.saveDefaultWriter ()
         //let url = 
         //    let b = Suave.Web.defaultConfig.bindings |> List.item 0
         //    b.ToString()

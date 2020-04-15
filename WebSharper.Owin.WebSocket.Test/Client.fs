@@ -9,6 +9,8 @@ open WebSharper.UI.Next
 
 open WebSharper.Html.Client
 open WebSharper.Owin.WebSocket
+
+
 //open WebSharper.UI.Next.CSharp.Client.Html
 
 
@@ -82,6 +84,7 @@ module Client =
     let fsiCmd () =
         let rvInput = Var.Create ""
         let submit = Submitter.CreateOption rvInput.View
+        
         let vReversed =
             submit.View.MapAsync(function
                 | None -> async { return "" }
@@ -94,8 +97,12 @@ module Client =
             )
 
         divAttr [] [
-            Doc.InputArea [] rvInput
-            Doc.Button "Send" [] submit.Trigger
+            divAttr [][
+                Doc.Button "Send" [] submit.Trigger
+                Doc.Button "Clear Console" [] (fun () -> WebSharper.JQuery.JQuery.Of("#console").Empty().Ignore)
+                brAttr [][]
+                Doc.InputArea [attr.style "width: 800px"; attr.``class`` "input"; attr.rows "10"; attr.value "printfn \"orz\""] rvInput
+            ]
             hrAttr [] []
             h4Attr [attr.``class`` "text-muted"] [text "The server responded:"]
             divAttr [attr.``class`` "jumbotron"] [h1Attr [] [textView vReversed]]
@@ -189,7 +196,7 @@ module Client =
                         match msg with
                         | Message data ->
                             match data with
-                            | Server.MessageFromServer_String x -> writen "Response1 %s (state: %i)" x state
+                            | Server.MessageFromServer_String x -> writen "MessageFromServer_String %s \r\n(state: %i)" x state
                             | _ ->
                                 writen "invalidMessage"
                             return (state + 1)
@@ -217,7 +224,8 @@ module Client =
                 //server.Post (Server.Request2 lotsOf123s)
         }
         |> FSharp.Control.Async.Start
-
+        
+        container.SetAttribute("id", "console")
         container
 
     
