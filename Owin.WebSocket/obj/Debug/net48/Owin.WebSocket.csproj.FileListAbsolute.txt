@@ -1,0 +1,11 @@
+T:\webfsi\ws\Owin.WebSocket\bin\Debug\net48\Owin.WebSocket.dll
+T:\webfsi\ws\Owin.WebSocket\bin\Debug\net48\Microsoft.Owin.dll
+T:\webfsi\ws\Owin.WebSocket\bin\Debug\net48\Owin.dll
+T:\webfsi\ws\Owin.WebSocket\obj\Debug\net48\Owin.WebSocket.AssemblyInfoInputs.cache
+T:\webfsi\ws\Owin.WebSocket\obj\Debug\net48\Owin.WebSocket.AssemblyInfo.cs
+T:\webfsi\ws\Owin.WebSocket\obj\Debug\net48\Owin.WebSocket.csproj.CopyComplete
+T:\webfsi\ws\Owin.WebSocket\bin\Debug\net48\Owin.WebSocket.pdb
+T:\webfsi\ws\Owin.WebSocket\bin\Debug\net48\CommonServiceLocator.dll
+T:\webfsi\ws\Owin.WebSocket\obj\Debug\net48\Owin.WebSocket.csproj.CoreCompileInputs.cache
+T:\webfsi\ws\Owin.WebSocket\obj\Debug\net48\Owin.WebSocket.dll
+T:\webfsi\ws\Owin.WebSocket\obj\Debug\net48\Owin.WebSocket.pdb
